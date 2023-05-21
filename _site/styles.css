@@ -1,0 +1,15 @@
+/* css styles */
+.hello {
+    text-align: center; 
+    font-size: xx-large;
+}
+
+.hello-image-container {
+    text-align: center;
+}
+
+.hello-image {
+    border-radius: 50%;
+    box-shadow: 0 0 15px 5px rgba(125, 125, 125, 1);
+    margin: auto;
+}

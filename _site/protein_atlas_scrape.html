@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Favian Hatje">
+<meta name="dcterms.date" content="2022-07-16">
+
+<title>Favian A. Hatje - Scraping Images from the Human Protein Atlas</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar floating fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title">Scraping Images from the Human Protein Atlas</h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Favian A. Hatje</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://twitter.com/Favi_Ha" title="" class="sidebar-tool px-1"><i class="bi bi-twitter"></i></a>
+    <a href="https://github.com/fhatje" title="" class="sidebar-tool px-1"><i class="bi bi-github"></i></a>
+    <a href="https://www.linkedin.com/in/favian-hatje-2892181a1/" title="" class="sidebar-tool px-1"><i class="bi bi-linkedin"></i></a>
+  <a href="" class="quarto-color-scheme-toggle sidebar-tool" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">Home</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./blog_overview.html" class="sidebar-item-text sidebar-link">Blog</a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block">Scraping Images from the Human Protein Atlas</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Favian Hatje </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 16, 2022</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<section id="data-collection" class="level1">
+<h1>Data Collection</h1>
+<p>We will be scraping histologic tissue slices from the <a href="https://www.proteinatlas.org/">Human Protein Atlas</a>, which they explicitly allow <a href="https://www.proteinatlas.org/about/licence">here</a>.</p>
+<p>They provide datasets of available images and respective metadata. I am only interested in largeintestine, kidney, lung, spleen, prostate, preferably without stains.</p>
+<p>Here is an (cropped) example:</p>
+<p><img src="podocin.png" class="img-fluid"></p>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> shutil</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> bs4 <span class="im">import</span> BeautifulSoup <span class="im">as</span> BS</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tqdm <span class="im">import</span> tqdm</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">"https://www.proteinatlas.org/download/normal_tissue.tsv.zip"</span>, delimiter<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Gene</th>
+      <th>Gene name</th>
+      <th>Tissue</th>
+      <th>Cell type</th>
+      <th>Level</th>
+      <th>Reliability</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>ENSG00000000003</td>
+      <td>TSPAN6</td>
+      <td>adipose tissue</td>
+      <td>adipocytes</td>
+      <td>Not detected</td>
+      <td>Approved</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>ENSG00000000003</td>
+      <td>TSPAN6</td>
+      <td>adrenal gland</td>
+      <td>glandular cells</td>
+      <td>Not detected</td>
+      <td>Approved</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>ENSG00000000003</td>
+      <td>TSPAN6</td>
+      <td>appendix</td>
+      <td>glandular cells</td>
+      <td>Medium</td>
+      <td>Approved</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>ENSG00000000003</td>
+      <td>TSPAN6</td>
+      <td>appendix</td>
+      <td>lymphoid tissue</td>
+      <td>Not detected</td>
+      <td>Approved</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>ENSG00000000003</td>
+      <td>TSPAN6</td>
+      <td>bone marrow</td>
+      <td>hematopoietic cells</td>
+      <td>Not detected</td>
+      <td>Approved</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</div>
+<p>Let’s see which tissues they have images of.</p>
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df.Tissue.unique()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<pre><code>array(['adipose tissue', 'adrenal gland', 'appendix', 'bone marrow',
+       'breast', 'bronchus', 'caudate', 'cerebellum', 'cerebral cortex',
+       'cervix', 'colon', 'duodenum', 'endometrium 1', 'endometrium 2',
+       'epididymis', 'esophagus', 'fallopian tube', 'gallbladder',
+       'heart muscle', 'hippocampus', 'kidney', 'liver', 'lung',
+       'lymph node', 'nasopharynx', 'oral mucosa', 'ovary', 'pancreas',
+       'parathyroid gland', 'placenta', 'prostate', 'rectum',
+       'salivary gland', 'seminal vesicle', 'skeletal muscle', 'skin 1',
+       'skin 2', 'small intestine', 'smooth muscle', 'soft tissue 1',
+       'soft tissue 2', 'spleen', 'stomach 1', 'stomach 2', 'testis',
+       'thyroid gland', 'tonsil', 'urinary bladder', 'vagina', nan,
+       'hypothalamus', 'hair', 'retina', 'lactating breast', 'skin',
+       'thymus', 'cartilage', 'eye', 'pituitary gland', 'dorsal raphe',
+       'choroid plexus', 'substantia nigra', 'sole of foot'], dtype=object)</code></pre>
+</div>
+</div>
+<p>Every tissue I am interest in is present! <em>(Colon = large Intestine)</em> Let’s get rid of everything else.</p>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>tissues <span class="op">=</span> <span class="bu">set</span>(<span class="st">"colon kidney lung prostate spleen"</span>.split())</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>mask <span class="op">=</span> df.Tissue.isin(tissues)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df[mask]</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>df.Tissue.unique()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<pre><code>array(['colon', 'kidney', 'lung', 'prostate', 'spleen'], dtype=object)</code></pre>
+</div>
+</div>
+<p><em>All</em> images have been stained with some antibody, but we actually don’t want stained images. That’s why we’re only keeping those images in which no antigen has been detected (meaning no visible stain is present in these images).</p>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df[df.Level <span class="op">==</span> <span class="st">"Not detected"</span>]</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>df.Level.unique()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<pre><code>array(['Not detected'], dtype=object)</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Gene</th>
+      <th>Gene name</th>
+      <th>Tissue</th>
+      <th>Cell type</th>
+      <th>Level</th>
+      <th>Reliability</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>20</th>
+      <td>ENSG00000000003</td>
+      <td>TSPAN6</td>
+      <td>colon</td>
+      <td>endothelial cells</td>
+      <td>Not detected</td>
+      <td>Approved</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>ENSG00000000003</td>
+      <td>TSPAN6</td>
+      <td>colon</td>
+      <td>peripheral nerve/ganglion</td>
+      <td>Not detected</td>
+      <td>Approved</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>ENSG00000000003</td>
+      <td>TSPAN6</td>
+      <td>kidney</td>
+      <td>cells in glomeruli</td>
+      <td>Not detected</td>
+      <td>Approved</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>ENSG00000000003</td>
+      <td>TSPAN6</td>
+      <td>lung</td>
+      <td>macrophages</td>
+      <td>Not detected</td>
+      <td>Approved</td>
+    </tr>
+    <tr>
+      <th>67</th>
+      <td>ENSG00000000003</td>
+      <td>TSPAN6</td>
+      <td>spleen</td>
+      <td>cells in red pulp</td>
+      <td>Not detected</td>
+      <td>Approved</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</div>
+<p>cell types and reliability are not relevant in this usecase, so let’s just get rid of those columns. Also, the actual name of the gene is redundant.</p>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">del</span> df[<span class="st">"Cell type"</span>], df[<span class="st">"Reliability"</span>], df[<span class="st">"Gene name"</span>] </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Gene</th>
+      <th>Tissue</th>
+      <th>Level</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>20</th>
+      <td>ENSG00000000003</td>
+      <td>colon</td>
+      <td>Not detected</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>ENSG00000000003</td>
+      <td>colon</td>
+      <td>Not detected</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>ENSG00000000003</td>
+      <td>kidney</td>
+      <td>Not detected</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>ENSG00000000003</td>
+      <td>lung</td>
+      <td>Not detected</td>
+    </tr>
+    <tr>
+      <th>67</th>
+      <td>ENSG00000000003</td>
+      <td>spleen</td>
+      <td>Not detected</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1193149</th>
+      <td>ENSG00000288602</td>
+      <td>kidney</td>
+      <td>Not detected</td>
+    </tr>
+    <tr>
+      <th>1193153</th>
+      <td>ENSG00000288602</td>
+      <td>lung</td>
+      <td>Not detected</td>
+    </tr>
+    <tr>
+      <th>1193154</th>
+      <td>ENSG00000288602</td>
+      <td>lung</td>
+      <td>Not detected</td>
+    </tr>
+    <tr>
+      <th>1193155</th>
+      <td>ENSG00000288602</td>
+      <td>lung</td>
+      <td>Not detected</td>
+    </tr>
+    <tr>
+      <th>1193196</th>
+      <td>ENSG00000288602</td>
+      <td>spleen</td>
+      <td>Not detected</td>
+    </tr>
+  </tbody>
+</table>
+<p>66991 rows × 3 columns</p>
+</div>
+</div>
+</div>
+<p>We have some duplicates, meaning some genes appear multiple times per organ, let’s get rid of those as well.</p>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.drop_duplicates(subset<span class="op">=</span>[<span class="st">"Gene"</span>, <span class="st">"Tissue"</span>])</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Gene</th>
+      <th>Tissue</th>
+      <th>Level</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>20</th>
+      <td>ENSG00000000003</td>
+      <td>colon</td>
+      <td>Not detected</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>ENSG00000000003</td>
+      <td>kidney</td>
+      <td>Not detected</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>ENSG00000000003</td>
+      <td>lung</td>
+      <td>Not detected</td>
+    </tr>
+    <tr>
+      <th>67</th>
+      <td>ENSG00000000003</td>
+      <td>spleen</td>
+      <td>Not detected</td>
+    </tr>
+    <tr>
+      <th>196</th>
+      <td>ENSG00000000457</td>
+      <td>lung</td>
+      <td>Not detected</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1193035</th>
+      <td>ENSG00000288558</td>
+      <td>lung</td>
+      <td>Not detected</td>
+    </tr>
+    <tr>
+      <th>1193127</th>
+      <td>ENSG00000288602</td>
+      <td>colon</td>
+      <td>Not detected</td>
+    </tr>
+    <tr>
+      <th>1193149</th>
+      <td>ENSG00000288602</td>
+      <td>kidney</td>
+      <td>Not detected</td>
+    </tr>
+    <tr>
+      <th>1193153</th>
+      <td>ENSG00000288602</td>
+      <td>lung</td>
+      <td>Not detected</td>
+    </tr>
+    <tr>
+      <th>1193196</th>
+      <td>ENSG00000288602</td>
+      <td>spleen</td>
+      <td>Not detected</td>
+    </tr>
+  </tbody>
+</table>
+<p>37897 rows × 3 columns</p>
+</div>
+</div>
+</div>
+<p>Nice, so how many <em>genes per organ</em> do we get?</p>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>df.groupby(<span class="st">"Tissue"</span>).count()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Gene</th>
+      <th>Level</th>
+    </tr>
+    <tr>
+      <th>Tissue</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>colon</th>
+      <td>7339</td>
+      <td>7339</td>
+    </tr>
+    <tr>
+      <th>kidney</th>
+      <td>7704</td>
+      <td>7704</td>
+    </tr>
+    <tr>
+      <th>lung</th>
+      <td>8752</td>
+      <td>8752</td>
+    </tr>
+    <tr>
+      <th>prostate</th>
+      <td>5175</td>
+      <td>5175</td>
+    </tr>
+    <tr>
+      <th>spleen</th>
+      <td>8927</td>
+      <td>8927</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</div>
+<p>Up to 8752 genes per organ. That quite a bit more than the 100ish images per organ in the training data.</p>
+<p>These are still to many to just download all at once (at least for me right now), so I’ll just randomly select 2000 of each tissue.</p>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>rand_indices <span class="op">=</span> []</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> df.Tissue.unique():</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    rand_idx <span class="op">=</span> <span class="bu">list</span>(np.random.choice(df[df.Tissue<span class="op">==</span>t].index, size<span class="op">=</span><span class="dv">2000</span>))</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    rand_indices <span class="op">=</span> [<span class="op">*</span>rand_indices, <span class="op">*</span>rand_idx]</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.loc[rand_indices]</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>df.groupby(<span class="st">"Tissue"</span>).count()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Gene</th>
+      <th>Level</th>
+    </tr>
+    <tr>
+      <th>Tissue</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>colon</th>
+      <td>2000</td>
+      <td>2000</td>
+    </tr>
+    <tr>
+      <th>kidney</th>
+      <td>2000</td>
+      <td>2000</td>
+    </tr>
+    <tr>
+      <th>lung</th>
+      <td>2000</td>
+      <td>2000</td>
+    </tr>
+    <tr>
+      <th>prostate</th>
+      <td>2000</td>
+      <td>2000</td>
+    </tr>
+    <tr>
+      <th>spleen</th>
+      <td>2000</td>
+      <td>2000</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</div>
+<p>Let’s get all links to the genes. Most genes have multiple images so we are going to expand our dataset with links to every image of every gene.</p>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> build_url(embl, tissue): <span class="cf">return</span> <span class="ss">f"https://www.proteinatlas.org/</span><span class="sc">{</span>embl<span class="sc">}</span><span class="ss">/tissue/</span><span class="sc">{</span>tissue<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> extract_image_urls(htext):</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    soup <span class="op">=</span> BS(htext)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    image_urls <span class="op">=</span> soup.body.findAll(<span class="st">"img"</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    image_urls <span class="op">=</span> [il.get_attribute_list(<span class="st">"src"</span>)[<span class="dv">0</span>] <span class="cf">for</span> il <span class="kw">in</span> image_urls]</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    image_urls <span class="op">=</span> [il <span class="cf">for</span> il <span class="kw">in</span> image_urls <span class="cf">if</span> <span class="st">"proteinatlas"</span> <span class="kw">in</span> il]</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    image_urls <span class="op">=</span> [<span class="st">"https:"</span><span class="op">+</span>im_url <span class="cf">for</span> im_url <span class="kw">in</span> image_urls]</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> image_urls</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>urls <span class="op">=</span> []</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> gene, tissue <span class="kw">in</span> tqdm(<span class="bu">list</span>(<span class="bu">zip</span>(df.Gene.values, df.Tissue.values))):</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    url <span class="op">=</span> build_url(gene, tissue)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> requests.get(url)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> r.status_code <span class="op">!=</span> <span class="dv">200</span>:</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Url: </span><span class="sc">{</span>url<span class="sc">}</span><span class="ss"> didn't work"</span>)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        urls.append(<span class="va">None</span>)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">continue</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    urls.append(<span class="st">";"</span>.join(extract_image_urls(r.text)))</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    time.sleep(<span class="fl">0.05</span>)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"urls"</span>] <span class="op">=</span> urls</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>100%|██████████| 10000/10000 [2:19:59&lt;00:00,  1.19it/s] </code></pre>
+</div>
+</div>
+<p>This took quite some time, would be smart to save this dataframe, just in case.</p>
+<div class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>df.to_csv(<span class="st">"protein_atlas_scrape.csv"</span>, index<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> download_image(image_url, filename):</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>        r <span class="op">=</span> requests.get(image_url, stream<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> r.status_code <span class="op">==</span> <span class="dv">200</span>:</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>            r.raw.decode_content <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>            <span class="cf">with</span> <span class="bu">open</span>(filename,<span class="st">'wb'</span>) <span class="im">as</span> f: shutil.copyfileobj(r.raw, f)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>: <span class="bu">print</span>(<span class="st">"Download unsuccessful.."</span>)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span>:</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>        <span class="co"># This exception should be handled better...</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"something went wrong...."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>DOWNLOAD_DIR <span class="op">=</span> <span class="st">"images"</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _,row <span class="kw">in</span> tqdm(df.iterrows(), total<span class="op">=</span><span class="bu">len</span>(df)):</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, url <span class="kw">in</span> <span class="bu">enumerate</span>(row.urls.split(<span class="st">";"</span>)):</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>        image_name <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>DOWNLOAD_DIR<span class="sc">}</span><span class="ss">/</span><span class="sc">{</span>row<span class="sc">.</span>Gene<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span>row<span class="sc">.</span>Tissue<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">.jpg"</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>        download_image(url, image_name)</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>        time.sleep(<span class="fl">0.05</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code> 81%|████████  | 8090/10000 [3:30:54&lt;1:00:58,  1.92s/it]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>something went wrong....</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code> 85%|████████▍ | 8494/10000 [3:40:42&lt;39:39,  1.58s/it]  </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>something went wrong....</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code> 95%|█████████▍| 9454/10000 [4:04:54&lt;08:36,  1.06it/s]  </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>something went wrong....</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code> 95%|█████████▌| 9503/10000 [4:05:54&lt;09:33,  1.15s/it]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>something went wrong....</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>100%|██████████| 10000/10000 [4:18:07&lt;00:00,  1.55s/it]</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(<span class="bu">list</span>(Path(<span class="st">"images"</span>).iterdir()))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<pre><code>36481</code></pre>
+</div>
+</div>
+<p>Now we have <strong>36481</strong> images! Let’s look a a random one.</p>
+<div class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>image_file <span class="op">=</span> np.random.choice(<span class="bu">list</span>(Path(<span class="st">"images"</span>).iterdir()))</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>Image.<span class="bu">open</span>(image_file)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="17">
+<div id="scraped-image" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="protein_atlas_scrape_files/figure-html/scraped-image-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Random Image from our new new dataset.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>And there we go! We now have several thousand unlabeled images we can use for semisupervised pretraining.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } 
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+      <div class="nav-footer-center">Copyright © 2023, Favian Alexander Hatje</div>
+  </div>
+</footer>
+
+
+
+</body></html>

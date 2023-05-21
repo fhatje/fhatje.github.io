@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Favian Hatje">
+<meta name="dcterms.date" content="2022-11-06">
+
+<title>Favian A. Hatje - Glomerulus Segmentation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-sidebar floating fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title">Glomerulus Segmentation</h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Favian A. Hatje</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://twitter.com/Favi_Ha" title="" class="sidebar-tool px-1"><i class="bi bi-twitter"></i></a>
+    <a href="https://github.com/fhatje" title="" class="sidebar-tool px-1"><i class="bi bi-github"></i></a>
+    <a href="https://www.linkedin.com/in/favian-hatje-2892181a1/" title="" class="sidebar-tool px-1"><i class="bi bi-linkedin"></i></a>
+  <a href="" class="quarto-color-scheme-toggle sidebar-tool" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link">Home</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../blog_overview.html" class="sidebar-item-text sidebar-link">Blog</a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block">Glomerulus Segmentation</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">deep learning</div>
+    <div class="quarto-category">image segmentation</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Favian Hatje </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 6, 2022</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<p>Training an <strong>Unet++</strong> with fastai to segment glomeruli.</p>
+<p><img src="zoomed_segmented_gloms.png" class="img-fluid"></p>
+<section id="model-training-notebook" class="level1">
+<h1>Model Training Notebook</h1>
+<p>Here we train a Unet++ architecture with a pretrained efficientnet-b4 backbone from the awesome <a href="https://github.com/qubvel/segmentation_models.pytorch">segmentation_models_pytorch</a> library. Data loading, transforming, the actual training and, finally, exporting the newly trained model, we use <a href="https://github.com/fastai/fastai">fastai</a>.</p>
+<p>Here’s a <a href="https://huggingface.co/spaces/fhatje/glomseg">running example</a> of the model trained with this notebook.</p>
+<section id="goal" class="level2">
+<h2 class="anchored" data-anchor-id="goal">Goal</h2>
+<p>Segmenting glomeruli (an intricate structure in the kidney’s cortex in which the blood filtration happen), i.e.&nbsp;turning this</p>
+<p><img src="input_example.png" width="200" style="border-radius: 10px;"> to this <img src="segmented_example.png" width="200" style="border-radius: 10px;"></p>
+</section>
+<section id="data" class="level2">
+<h2 class="anchored" data-anchor-id="data">Data</h2>
+<p>I am using training data from the <a href="https://www.kaggle.com/competitions/hubmap-organ-segmentation/">HuBMAP Challenge</a> hosted on kaggle and a few dozen images downloaded from the <a href="https://www.proteinatlas.org/">Human Protein Atlas</a> I annotated myself. (If you’re interested in how to do this, here a <a href="../../posts/hpa/protein_atlas_scrape.html">blogpost</a> I wrote)</p>
+<div class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> monai</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> fastai.vision.<span class="bu">all</span> <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> segmentation_models_pytorch <span class="im">as</span> smp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>ORGAN <span class="op">=</span> <span class="st">"kidney"</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>TRAIN_BATCH_SIZE <span class="op">=</span> <span class="dv">8</span> <span class="co"># Reduce this, if you run out of cuda memory</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>EFFECTIVE_BATCH_SIZE <span class="op">=</span> <span class="dv">8</span> <span class="co"># This is the batch size that will be used for training</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>IMAGE_SIZE <span class="op">=</span> <span class="dv">512</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>LR <span class="op">=</span> <span class="fl">3e-4</span> </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>EPOCHS <span class="op">=</span> <span class="dv">60</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>MODEL_NAME <span class="op">=</span> <span class="ss">f"smp_</span><span class="sc">{</span>IMAGE_SIZE<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span>ORGAN<span class="sc">}</span><span class="ss">_added_data"</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>DATA_PATH <span class="op">=</span> Path(<span class="st">"../data/"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reproducibility</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>TESTSET_SEED <span class="op">=</span> <span class="dv">93</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>TRAIN_VAL_SEED <span class="op">=</span> <span class="dv">43</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(DATA_PATH<span class="op">/</span><span class="st">"train.csv"</span>) <span class="co"># This is the training set from the competition</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>fns <span class="op">=</span> L([<span class="op">*</span>get_image_files(DATA_PATH<span class="op">/</span><span class="st">"test_images"</span>), <span class="op">*</span>get_image_files(DATA_PATH<span class="op">/</span><span class="st">"train_images"</span>)]) <span class="co"># List of all competition images   </span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>fn_col <span class="op">=</span> [] <span class="co"># This will be a column in the dataframe, containing the filenames</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _, r <span class="kw">in</span> df.iterrows(): fn_col.append([fn <span class="cf">for</span> fn <span class="kw">in</span> fns <span class="cf">if</span> <span class="bu">str</span>(r[<span class="st">"id"</span>]) <span class="op">==</span> fn.stem][<span class="dv">0</span>])</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"fnames"</span>] <span class="op">=</span> fn_col</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"is_organ"</span>] <span class="op">=</span> df.organ.<span class="bu">apply</span>(<span class="kw">lambda</span> o: o<span class="op">==</span>ORGAN)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df[df.is_organ] <span class="co"># Only keep images with the organ we are interested in</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> df.organ.unique()[<span class="dv">0</span>] <span class="op">==</span> ORGAN</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.drop(columns<span class="op">=</span><span class="st">"organ data_source is_organ tissue_thickness pixel_size sex age"</span>.split()).copy()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># These are the images I added and that are annotated by me</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>add_images <span class="op">=</span> get_image_files(DATA_PATH<span class="op">/</span><span class="st">"add_images/"</span>) </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>add_images_masks <span class="op">=</span> get_image_files(DATA_PATH<span class="op">/</span><span class="st">"segs/"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The masks have the same name as the images, but with "_mask" appended</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>masks <span class="op">=</span> [p.name[:<span class="op">-</span><span class="dv">9</span>]<span class="op">+</span><span class="st">".png"</span> <span class="cf">for</span> p <span class="kw">in</span> add_images_masks] </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Delete images without masks</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>images_to_delete <span class="op">=</span> [p <span class="cf">for</span> p <span class="kw">in</span> add_images <span class="cf">if</span> p.name <span class="kw">not</span> <span class="kw">in</span> masks] </span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> p <span class="kw">in</span> images_to_delete: p.unlink()</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co"># This will contain the masks in the same order as the images</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>sorted_masks <span class="op">=</span> [] </span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> add_images:</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    sorted_masks.append([p <span class="cf">for</span> p <span class="kw">in</span> add_images_masks <span class="cf">if</span> i.stem <span class="op">==</span> p.stem[:<span class="op">-</span><span class="dv">5</span>]][<span class="dv">0</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine the competition data with the added data</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>add_df <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"fnames"</span>: add_images,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"segmentation"</span>: sorted_masks,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"is_add"</span>: [<span class="va">True</span>]<span class="op">*</span><span class="bu">len</span>(add_images)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"is_add"</span>] <span class="op">=</span> df.<span class="bu">id</span>.<span class="bu">apply</span>(<span class="kw">lambda</span> p: <span class="va">False</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>combined_df <span class="op">=</span> pd.concat([df, add_df])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setting aside a random testset</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>cut <span class="op">=</span> <span class="bu">int</span>(<span class="fl">0.1</span> <span class="op">*</span> <span class="bu">len</span>(combined_df))</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>ind <span class="op">=</span> np.arange(<span class="bu">len</span>(combined_df))</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>np.random.seed(TESTSET_SEED) <span class="co"># Always create the same testset</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>np.random.shuffle(ind)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>test_ind <span class="op">=</span> ind[:cut]</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>train_valid_ind <span class="op">=</span> ind[cut:]</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>test_df <span class="op">=</span> combined_df.iloc[test_ind,:].copy()</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>train_df <span class="op">=</span> combined_df.iloc[train_valid_ind,:].copy()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The masks of the competition data are in run-length encoding, that’s why we need the following function. It converts the run-length encoding to a numpy array which we can use for training.</p>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># From: https://www.kaggle.com/code/paulorzp/run-length-encode-and-decode/script</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> rle_decode(mask_rle, shape):</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">'''</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co">    mask_rle: run-length as string formated (start length)</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">    shape: (height,width) of array to return </span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns numpy array, 1 - mask, 0 - background</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">    '''</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> mask_rle.split()</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    starts, lengths <span class="op">=</span> [np.asarray(x, dtype<span class="op">=</span><span class="bu">int</span>) <span class="cf">for</span> x <span class="kw">in</span> (s[<span class="dv">0</span>:][::<span class="dv">2</span>], s[<span class="dv">1</span>:][::<span class="dv">2</span>])]</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    starts <span class="op">-=</span> <span class="dv">1</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    ends <span class="op">=</span> starts <span class="op">+</span> lengths</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    img <span class="op">=</span> np.zeros(shape[<span class="dv">0</span>]<span class="op">*</span>shape[<span class="dv">1</span>], dtype<span class="op">=</span>np.uint8)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> lo, hi <span class="kw">in</span> <span class="bu">zip</span>(starts, ends):</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>        img[lo:hi] <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.reshape(img, shape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>CODES <span class="op">=</span> [<span class="st">"Background"</span>, <span class="st">"FTU"</span>] <span class="co"># FTU = functional tissue unit</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> x_getter(r): <span class="cf">return</span> r[<span class="st">"fnames"</span>]</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> y_getter(r): </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># My additional annotations are saved as pngs, so I need to differ between the two</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> r[<span class="st">"is_add"</span>]: </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>        im <span class="op">=</span> np.array(load_image(r[<span class="st">"segmentation"</span>]), dtype<span class="op">=</span>np.uint8)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>        im <span class="op">=</span> (im.mean(axis<span class="op">=-</span><span class="dv">1</span>) <span class="op">&lt;</span> <span class="dv">125</span>).astype(np.uint8)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> im</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    rle <span class="op">=</span> r[<span class="st">"rle"</span>]</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    shape <span class="op">=</span> (<span class="bu">int</span>(r[<span class="st">"img_height"</span>]), <span class="bu">int</span>(r[<span class="st">"img_width"</span>]))</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> rle_decode(rle, shape).T</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>btfms <span class="op">=</span> aug_transforms(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    mult<span class="op">=</span><span class="fl">1.2</span>,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    do_flip<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    flip_vert<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    max_rotate<span class="op">=</span><span class="fl">45.0</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    min_zoom<span class="op">=</span><span class="fl">1.</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    max_zoom<span class="op">=</span><span class="fl">1.5</span>,</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    max_lighting<span class="op">=</span><span class="fl">0.3</span>,</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    max_warp<span class="op">=</span><span class="fl">0.3</span>,</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    size<span class="op">=</span>(IMAGE_SIZE, IMAGE_SIZE),</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    p_affine<span class="op">=</span><span class="fl">0.5</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>) <span class="co"># Data augmentation</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>dblock <span class="op">=</span> DataBlock(blocks<span class="op">=</span>(ImageBlock, MaskBlock(CODES)),</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>                   get_x<span class="op">=</span>x_getter,</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>                   get_y<span class="op">=</span>y_getter,</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>                   splitter<span class="op">=</span>RandomSplitter(seed<span class="op">=</span>TRAIN_VAL_SEED),</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>                   item_tfms<span class="op">=</span>[Resize((IMAGE_SIZE, IMAGE_SIZE))],</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>                   batch_tfms<span class="op">=</span>btfms)</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>dls <span class="op">=</span> dblock.dataloaders(train_df, Path(<span class="st">".."</span>), bs<span class="op">=</span>TRAIN_BATCH_SIZE)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>dls.train.show_batch()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="train_model_files/figure-html/cell-15-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>dls.valid.show_batch()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="train_model_files/figure-html/cell-16-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>cbs <span class="op">=</span> [</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    GradientAccumulation(EFFECTIVE_BATCH_SIZE),</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    SaveModelCallback(fname<span class="op">=</span>MODEL_NAME),</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> smp.UnetPlusPlus(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    encoder_name<span class="op">=</span><span class="st">"efficientnet-b4"</span>,        </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    encoder_weights<span class="op">=</span><span class="st">"imagenet"</span>,     </span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    in_channels<span class="op">=</span><span class="dv">3</span>,                  </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    classes<span class="op">=</span><span class="dv">2</span>,                      </span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Splitting model's into 2 groups to use fastai's differential learning rates</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> splitter(model): </span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    enc_params <span class="op">=</span> L(model.encoder.parameters())</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    dec_params <span class="op">=</span> L(model.decoder.parameters())</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    sg_params <span class="op">=</span> L(model.segmentation_head.parameters())</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    untrained_params <span class="op">=</span> L([<span class="op">*</span>dec_params, <span class="op">*</span>sg_params])</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> L([enc_params, untrained_params])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>learn <span class="op">=</span> Learner(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    dls, </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    model, </span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    cbs<span class="op">=</span>cbs,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    splitter<span class="op">=</span>splitter,</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[Dice(), JaccardCoeff(), RocAucBinary()])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>learn.fit_flat_cos(EPOCHS, LR)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style>
+</div>
+<div class="cell-output cell-output-display">
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th>epoch</th>
+      <th>train_loss</th>
+      <th>valid_loss</th>
+      <th>dice</th>
+      <th>jaccard_coeff</th>
+      <th>roc_auc_score</th>
+      <th>time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>0.727570</td>
+      <td>0.603148</td>
+      <td>0.085859</td>
+      <td>0.044855</td>
+      <td>0.322773</td>
+      <td>00:12</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>0.604307</td>
+      <td>0.516570</td>
+      <td>0.096767</td>
+      <td>0.050843</td>
+      <td>0.427407</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>0.508117</td>
+      <td>0.379248</td>
+      <td>0.522587</td>
+      <td>0.353718</td>
+      <td>0.314975</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>0.424914</td>
+      <td>0.302621</td>
+      <td>0.584612</td>
+      <td>0.413040</td>
+      <td>0.085511</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>0.353784</td>
+      <td>0.207627</td>
+      <td>0.712757</td>
+      <td>0.553709</td>
+      <td>0.128719</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>0.296790</td>
+      <td>0.142182</td>
+      <td>0.830598</td>
+      <td>0.710276</td>
+      <td>0.556589</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>0.250124</td>
+      <td>0.107157</td>
+      <td>0.849849</td>
+      <td>0.738903</td>
+      <td>0.781829</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>0.211806</td>
+      <td>0.088498</td>
+      <td>0.857634</td>
+      <td>0.750752</td>
+      <td>0.867223</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>0.180824</td>
+      <td>0.070990</td>
+      <td>0.859145</td>
+      <td>0.753071</td>
+      <td>0.888895</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td>0.154632</td>
+      <td>0.061644</td>
+      <td>0.856697</td>
+      <td>0.749318</td>
+      <td>0.929199</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>0.133044</td>
+      <td>0.052796</td>
+      <td>0.868353</td>
+      <td>0.767336</td>
+      <td>0.953055</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>11</td>
+      <td>0.115005</td>
+      <td>0.046287</td>
+      <td>0.871848</td>
+      <td>0.772811</td>
+      <td>0.964127</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>12</td>
+      <td>0.099967</td>
+      <td>0.040762</td>
+      <td>0.883804</td>
+      <td>0.791800</td>
+      <td>0.971401</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>13</td>
+      <td>0.087097</td>
+      <td>0.037157</td>
+      <td>0.889235</td>
+      <td>0.800560</td>
+      <td>0.976527</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>14</td>
+      <td>0.076725</td>
+      <td>0.033152</td>
+      <td>0.899692</td>
+      <td>0.817673</td>
+      <td>0.979948</td>
+      <td>00:12</td>
+    </tr>
+    <tr>
+      <td>15</td>
+      <td>0.068125</td>
+      <td>0.031111</td>
+      <td>0.902548</td>
+      <td>0.822404</td>
+      <td>0.982294</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>16</td>
+      <td>0.060929</td>
+      <td>0.027760</td>
+      <td>0.910408</td>
+      <td>0.835549</td>
+      <td>0.984009</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>17</td>
+      <td>0.054637</td>
+      <td>0.027974</td>
+      <td>0.894529</td>
+      <td>0.809184</td>
+      <td>0.983233</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>18</td>
+      <td>0.049165</td>
+      <td>0.024334</td>
+      <td>0.911780</td>
+      <td>0.837864</td>
+      <td>0.986022</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>19</td>
+      <td>0.044277</td>
+      <td>0.024281</td>
+      <td>0.905008</td>
+      <td>0.826498</td>
+      <td>0.983716</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>20</td>
+      <td>0.040233</td>
+      <td>0.022132</td>
+      <td>0.913338</td>
+      <td>0.840498</td>
+      <td>0.986142</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>21</td>
+      <td>0.036737</td>
+      <td>0.021514</td>
+      <td>0.913032</td>
+      <td>0.839981</td>
+      <td>0.982759</td>
+      <td>00:12</td>
+    </tr>
+    <tr>
+      <td>22</td>
+      <td>0.033632</td>
+      <td>0.020441</td>
+      <td>0.919236</td>
+      <td>0.850543</td>
+      <td>0.988929</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>23</td>
+      <td>0.031428</td>
+      <td>0.021564</td>
+      <td>0.900877</td>
+      <td>0.819632</td>
+      <td>0.976978</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>24</td>
+      <td>0.029265</td>
+      <td>0.018416</td>
+      <td>0.922131</td>
+      <td>0.855513</td>
+      <td>0.990599</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>25</td>
+      <td>0.027243</td>
+      <td>0.017509</td>
+      <td>0.924026</td>
+      <td>0.858781</td>
+      <td>0.990082</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>26</td>
+      <td>0.025496</td>
+      <td>0.018210</td>
+      <td>0.916627</td>
+      <td>0.846087</td>
+      <td>0.983598</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>27</td>
+      <td>0.024097</td>
+      <td>0.017901</td>
+      <td>0.917531</td>
+      <td>0.847628</td>
+      <td>0.987033</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>28</td>
+      <td>0.022979</td>
+      <td>0.016894</td>
+      <td>0.920493</td>
+      <td>0.852697</td>
+      <td>0.986602</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>29</td>
+      <td>0.021918</td>
+      <td>0.018380</td>
+      <td>0.916335</td>
+      <td>0.845588</td>
+      <td>0.989573</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>30</td>
+      <td>0.020899</td>
+      <td>0.016375</td>
+      <td>0.920465</td>
+      <td>0.852650</td>
+      <td>0.988758</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>31</td>
+      <td>0.019700</td>
+      <td>0.014662</td>
+      <td>0.929562</td>
+      <td>0.868394</td>
+      <td>0.988694</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>32</td>
+      <td>0.018992</td>
+      <td>0.018643</td>
+      <td>0.906843</td>
+      <td>0.829563</td>
+      <td>0.989722</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>33</td>
+      <td>0.018747</td>
+      <td>0.016715</td>
+      <td>0.918087</td>
+      <td>0.848578</td>
+      <td>0.986600</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>34</td>
+      <td>0.018041</td>
+      <td>0.015872</td>
+      <td>0.918797</td>
+      <td>0.849792</td>
+      <td>0.982712</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>35</td>
+      <td>0.017152</td>
+      <td>0.015625</td>
+      <td>0.922364</td>
+      <td>0.855914</td>
+      <td>0.979253</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>36</td>
+      <td>0.016359</td>
+      <td>0.014718</td>
+      <td>0.925542</td>
+      <td>0.861403</td>
+      <td>0.977279</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>37</td>
+      <td>0.015855</td>
+      <td>0.012931</td>
+      <td>0.932580</td>
+      <td>0.873676</td>
+      <td>0.987032</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>38</td>
+      <td>0.015509</td>
+      <td>0.012442</td>
+      <td>0.932764</td>
+      <td>0.873999</td>
+      <td>0.990109</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>39</td>
+      <td>0.015077</td>
+      <td>0.011627</td>
+      <td>0.936922</td>
+      <td>0.881329</td>
+      <td>0.989619</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>40</td>
+      <td>0.014742</td>
+      <td>0.011964</td>
+      <td>0.934999</td>
+      <td>0.877933</td>
+      <td>0.987285</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>41</td>
+      <td>0.014460</td>
+      <td>0.011784</td>
+      <td>0.937937</td>
+      <td>0.883128</td>
+      <td>0.990435</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>42</td>
+      <td>0.014327</td>
+      <td>0.013164</td>
+      <td>0.928118</td>
+      <td>0.865877</td>
+      <td>0.985723</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>43</td>
+      <td>0.014337</td>
+      <td>0.012003</td>
+      <td>0.934332</td>
+      <td>0.876757</td>
+      <td>0.987117</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>44</td>
+      <td>0.014002</td>
+      <td>0.012138</td>
+      <td>0.935304</td>
+      <td>0.878470</td>
+      <td>0.988768</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>45</td>
+      <td>0.013552</td>
+      <td>0.011391</td>
+      <td>0.936339</td>
+      <td>0.880298</td>
+      <td>0.987371</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>46</td>
+      <td>0.013122</td>
+      <td>0.012408</td>
+      <td>0.929143</td>
+      <td>0.867663</td>
+      <td>0.983431</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>47</td>
+      <td>0.012708</td>
+      <td>0.011765</td>
+      <td>0.932473</td>
+      <td>0.873489</td>
+      <td>0.990839</td>
+      <td>00:12</td>
+    </tr>
+    <tr>
+      <td>48</td>
+      <td>0.012281</td>
+      <td>0.010892</td>
+      <td>0.938805</td>
+      <td>0.884668</td>
+      <td>0.987427</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>49</td>
+      <td>0.011792</td>
+      <td>0.010427</td>
+      <td>0.941303</td>
+      <td>0.889115</td>
+      <td>0.986761</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>50</td>
+      <td>0.011579</td>
+      <td>0.011140</td>
+      <td>0.938671</td>
+      <td>0.884429</td>
+      <td>0.982990</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>51</td>
+      <td>0.011452</td>
+      <td>0.010431</td>
+      <td>0.945001</td>
+      <td>0.895737</td>
+      <td>0.985848</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>52</td>
+      <td>0.011334</td>
+      <td>0.010210</td>
+      <td>0.943139</td>
+      <td>0.892396</td>
+      <td>0.987449</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>53</td>
+      <td>0.011300</td>
+      <td>0.011088</td>
+      <td>0.937227</td>
+      <td>0.881870</td>
+      <td>0.987982</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>54</td>
+      <td>0.011329</td>
+      <td>0.010670</td>
+      <td>0.937806</td>
+      <td>0.882895</td>
+      <td>0.988177</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>55</td>
+      <td>0.011342</td>
+      <td>0.010610</td>
+      <td>0.937321</td>
+      <td>0.882035</td>
+      <td>0.989792</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>56</td>
+      <td>0.011146</td>
+      <td>0.010468</td>
+      <td>0.938884</td>
+      <td>0.884808</td>
+      <td>0.988132</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>57</td>
+      <td>0.011024</td>
+      <td>0.010291</td>
+      <td>0.940346</td>
+      <td>0.887408</td>
+      <td>0.988785</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>58</td>
+      <td>0.010618</td>
+      <td>0.010369</td>
+      <td>0.939683</td>
+      <td>0.886228</td>
+      <td>0.988485</td>
+      <td>00:11</td>
+    </tr>
+    <tr>
+      <td>59</td>
+      <td>0.010563</td>
+      <td>0.010375</td>
+      <td>0.939610</td>
+      <td>0.886099</td>
+      <td>0.988654</td>
+      <td>00:11</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Better model found at epoch 0 with valid_loss value: 0.6031481027603149.
+Better model found at epoch 1 with valid_loss value: 0.516569972038269.
+Better model found at epoch 2 with valid_loss value: 0.3792479634284973.
+Better model found at epoch 3 with valid_loss value: 0.302621066570282.
+Better model found at epoch 4 with valid_loss value: 0.20762743055820465.
+Better model found at epoch 5 with valid_loss value: 0.14218230545520782.
+Better model found at epoch 6 with valid_loss value: 0.10715709626674652.
+Better model found at epoch 7 with valid_loss value: 0.0884983241558075.
+Better model found at epoch 8 with valid_loss value: 0.07099024951457977.
+Better model found at epoch 9 with valid_loss value: 0.06164400279521942.
+Better model found at epoch 10 with valid_loss value: 0.0527963824570179.
+Better model found at epoch 11 with valid_loss value: 0.046286918222904205.
+Better model found at epoch 12 with valid_loss value: 0.04076218977570534.
+Better model found at epoch 13 with valid_loss value: 0.037156544625759125.
+Better model found at epoch 14 with valid_loss value: 0.0331517718732357.
+Better model found at epoch 15 with valid_loss value: 0.031111164018511772.
+Better model found at epoch 16 with valid_loss value: 0.027760174125432968.
+Better model found at epoch 18 with valid_loss value: 0.024333978071808815.
+Better model found at epoch 19 with valid_loss value: 0.024281086400151253.
+Better model found at epoch 20 with valid_loss value: 0.022132011130452156.
+Better model found at epoch 21 with valid_loss value: 0.021513625979423523.
+Better model found at epoch 22 with valid_loss value: 0.020441483706235886.
+Better model found at epoch 24 with valid_loss value: 0.018416451290249825.
+Better model found at epoch 25 with valid_loss value: 0.017508765682578087.
+Better model found at epoch 28 with valid_loss value: 0.016893696039915085.
+Better model found at epoch 30 with valid_loss value: 0.016375476494431496.
+Better model found at epoch 31 with valid_loss value: 0.0146623644977808.
+Better model found at epoch 37 with valid_loss value: 0.012930507771670818.
+Better model found at epoch 38 with valid_loss value: 0.01244184747338295.
+Better model found at epoch 39 with valid_loss value: 0.01162666454911232.
+Better model found at epoch 45 with valid_loss value: 0.011391145177185535.
+Better model found at epoch 48 with valid_loss value: 0.010892268270254135.
+Better model found at epoch 49 with valid_loss value: 0.010426941327750683.
+Better model found at epoch 52 with valid_loss value: 0.010209585539996624.</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>learn.load(MODEL_NAME)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Saved filed doesn't contain an optimizer state.</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="22">
+<pre><code>&lt;fastai.learner.Learner at 0x7f2dd019eac0&gt;</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>learn.show_results()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style>
+</div>
+<div class="cell-output cell-output-display">
+
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="train_model_files/figure-html/cell-23-output-3.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a dataloader from the testset</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>test_dl <span class="op">=</span> dls.test_dl(test_df, with_labels<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>dice_func <span class="op">=</span> monai.metrics.DiceMetric(include_background<span class="op">=</span><span class="va">False</span>, reduction<span class="op">=</span><span class="st">"mean"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># This function steps through the different thresholds and returns the best one</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_best_threshold(learn, dl, metric_func, n_steps<span class="op">=</span><span class="dv">17</span>):</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co">    Tests `n_steps` different thresholds.</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Return the best threshold and the corresonding score.</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    thresholds <span class="op">=</span> torch.linspace(<span class="fl">0.1</span>, <span class="fl">0.9</span>, n_steps)</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    results <span class="op">=</span> []</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> learn.get_preds(dl<span class="op">=</span>dl, with_input<span class="op">=</span><span class="va">False</span>, with_targs<span class="op">=</span><span class="va">True</span>, act<span class="op">=</span>partial(F.softmax, dim<span class="op">=</span><span class="dv">1</span>))</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> t <span class="kw">in</span> thresholds:</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>        metric_func((res[<span class="dv">0</span>][:,<span class="dv">1</span>]<span class="op">&gt;</span>t).unsqueeze(<span class="dv">1</span>), res[<span class="op">-</span><span class="dv">1</span>].unsqueeze(<span class="dv">1</span>))</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>        metric <span class="op">=</span> metric_func.aggregate().item()</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>        metric_func.reset()</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>        results.append((<span class="bu">round</span>(t.detach().cpu().item(), ndigits<span class="op">=</span><span class="dv">3</span>), metric))</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">sorted</span>(results, key<span class="op">=</span><span class="kw">lambda</span> tpl: tpl[<span class="dv">1</span>], reverse<span class="op">=</span><span class="va">True</span>)[<span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>best_threshold, _ <span class="op">=</span> get_best_threshold(learn, dls.valid, dice_func)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>best_threshold</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style>
+</div>
+<div class="cell-output cell-output-display">
+
+</div>
+<div class="cell-output cell-output-display" data-execution_count="26">
+<pre><code>0.6</code></pre>
+</div>
+</div>
+<p>And now we test the model on the training, validation and test set with the best threshold.</p>
+<div class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_model(learn, dl, metric_func, threshold<span class="op">=</span><span class="fl">0.5</span>):</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> learn.get_preds(dl<span class="op">=</span>dl, with_input<span class="op">=</span><span class="va">False</span>, with_targs<span class="op">=</span><span class="va">True</span>, act<span class="op">=</span>partial(F.softmax, dim<span class="op">=</span><span class="dv">1</span>))</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    metric_func((res[<span class="dv">0</span>][:,<span class="dv">1</span>]<span class="op">&gt;</span>threshold).unsqueeze(<span class="dv">1</span>), res[<span class="op">-</span><span class="dv">1</span>].unsqueeze(<span class="dv">1</span>))</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    metric <span class="op">=</span> metric_func.aggregate().item()</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    metric_func.reset()</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> metric</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>train_dice <span class="op">=</span> test_model(learn, dls.train, dice_func, threshold<span class="op">=</span>best_threshold)</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>valid_dice <span class="op">=</span> test_model(learn, dls.valid, dice_func, threshold<span class="op">=</span>best_threshold)</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>test_dice  <span class="op">=</span> test_model(learn, test_dl,   dice_func, threshold<span class="op">=</span>best_threshold)</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> s, d <span class="kw">in</span> <span class="bu">zip</span>((<span class="st">"Training Dice:"</span>, <span class="st">"Valid Dice"</span>, <span class="st">"Test Dice"</span>), (train_dice, valid_dice, test_dice)):</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(s, d)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style>
+</div>
+<div class="cell-output cell-output-display">
+
+</div>
+<div class="cell-output cell-output-display">
+
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style>
+</div>
+<div class="cell-output cell-output-display">
+
+</div>
+<div class="cell-output cell-output-display">
+
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style>
+</div>
+<div class="cell-output cell-output-display">
+
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Training Dice: 0.9252251982688904
+Valid Dice 0.9271063208580017
+Test Dice 0.9414731860160828</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Save and export the model</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>BEST_MODEL_NAME <span class="op">=</span> <span class="ss">f"unetpp_b4_th</span><span class="sc">{</span><span class="bu">int</span>(best_threshold<span class="op">*</span><span class="dv">100</span>)<span class="sc">}</span><span class="ss">_d</span><span class="sc">{</span><span class="bu">str</span>(test_dice)[<span class="dv">2</span>:<span class="dv">6</span>]<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>learn.save(BEST_MODEL_NAME)</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>learn.export(BEST_MODEL_NAME<span class="op">+</span><span class="st">".pkl"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>A live version of this model is deployed on a <a href="https://huggingface.co/spaces/fhatje/glomseg">huggingface space</a>.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } 
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+      <div class="nav-footer-center">Copyright © 2023, Favian Alexander Hatje</div>
+  </div>
+</footer>
+
+
+
+</body></html>
