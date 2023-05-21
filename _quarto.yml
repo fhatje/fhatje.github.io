@@ -1,0 +1,31 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "Favian A. Hatje"
+  page-footer: "Copyright &#169; 2023, Favian Alexander Hatje" 
+  sidebar:
+    favicon: portrait.png
+    title: "Favian A. Hatje"
+    tools:
+      - icon: twitter
+        href: https://twitter.com/Favi_Ha
+      - icon: github
+        href: https://github.com/fhatje
+      - icon: linkedin
+        href: https://www.linkedin.com/in/favian-hatje-2892181a1/
+    style: "floating"
+    search: false
+    contents:
+      - index.qmd
+      - blog_overview.qmd
+    border: false
+    reader-mode: true
+
+format:
+  html:
+    theme: 
+      light: flatly
+      dark: darkly
+    css: styles.css
