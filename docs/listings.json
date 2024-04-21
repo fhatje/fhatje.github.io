@@ -2,6 +2,7 @@
   {
     "listing": "/blog_overview.html",
     "items": [
+      "/posts/hf_unsloth/huggingface_unsloth.html",
       "/posts/glomseg/train_model.html",
       "/posts/hpa/protein_atlas_scrape.html"
     ]
