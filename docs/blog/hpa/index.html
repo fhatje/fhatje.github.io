@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Data Collection We will be scraping histologic tissue slices from the Human Protein Atlas, which they explicitly allow here.">
+  <title>Scraping Images from the Human Protein Atlas</title>
+  <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <button class="theme-toggle" type="button" aria-label="Toggle color theme" data-theme-toggle></button>
+    <nav class="site-nav" aria-label="Primary navigation"><a href="/">Home</a><span class="nav-separator" aria-hidden="true">|</span><a href="/blog/" class="active" aria-current="page">Blog</a><span class="nav-separator" aria-hidden="true">|</span><a href="/projects/">Projects</a></nav>
+  </header>
+  <main>
+  <section class="article-head">
+    <a class="back-link" href="/blog/">Back to blog</a>
+    <p class="eyebrow">Notebook</p>
+    <h1>Scraping Images from the Human Protein Atlas</h1>
+    <p class="article-meta">2022-07-08 | Favian Hatje</p>
+    <div class="chips"></div>
+  </section>
+  <article class="article-body">
+    <h2>Data Collection</h2>
+<p>We will be scraping histologic tissue slices from the <a href="https://www.proteinatlas.org/">Human Protein Atlas</a>, which they explicitly allow <a href="https://www.proteinatlas.org/about/licence">here</a>.</p>
+<p>They provide datasets of available images and respective metadata. I am only interested in largeintestine, kidney, lung, spleen, prostate, preferably without stains.</p>
+<p>Here is an (cropped) example:</p> <figure class="article-figure"><img src="podocin.png" alt="" loading="lazy"></figure> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python"><span class="syn-keyword">import</span> numpy <span class="syn-keyword">as</span> np
+<span class="syn-keyword">import</span> pandas <span class="syn-keyword">as</span> pd
+<span class="syn-keyword">import</span> shutil
+<span class="syn-keyword">from</span> bs4 <span class="syn-keyword">import</span> BeautifulSoup <span class="syn-keyword">as</span> BS
+<span class="syn-keyword">import</span> time
+<span class="syn-keyword">from</span> tqdm <span class="syn-keyword">import</span> tqdm
+<span class="syn-keyword">import</span> requests
+<span class="syn-keyword">from</span> pathlib <span class="syn-keyword">import</span> Path
+<span class="syn-keyword">from</span> PIL <span class="syn-keyword">import</span> Image</code></pre></div> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python">df <span class="syn-muted">=</span> pd<span class="syn-muted">.</span>read_csv<span class="syn-muted">(</span><span class="syn-string">&quot;https://www.proteinatlas.org/download/normal_tissue.tsv.zip&quot;</span><span class="syn-muted">,</span> delimiter<span class="syn-muted">=</span><span class="syn-string">&quot;<span class="syn-escape">\t</span>&quot;</span><span class="syn-muted">)</span>
+df<span class="syn-muted">.</span>head<span class="syn-muted">(</span><span class="syn-muted">)</span></code></pre></div> <pre class="cell-output">Gene Gene name          Tissue            Cell type  \
+0  ENSG00000000003    TSPAN6  adipose tissue           adipocytes   
+1  ENSG00000000003    TSPAN6   adrenal gland      glandular cells   
+2  ENSG00000000003    TSPAN6        appendix      glandular cells   
+3  ENSG00000000003    TSPAN6        appendix      lymphoid tissue   
+4  ENSG00000000003    TSPAN6     bone marrow  hematopoietic cells   
+
+          Level Reliability  
+0  Not detected    Approved  
+1  Not detected    Approved  
+2        Medium    Approved  
+3  Not detected    Approved  
+4  Not detected    Approved</pre> <p>Let&#x27;s see which tissues they have images of.</p> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python">df<span class="syn-muted">.</span>Tissue<span class="syn-muted">.</span>unique<span class="syn-muted">(</span><span class="syn-muted">)</span></code></pre></div> <pre class="cell-output">array([&#x27;adipose tissue&#x27;, &#x27;adrenal gland&#x27;, &#x27;appendix&#x27;, &#x27;bone marrow&#x27;,
+       &#x27;breast&#x27;, &#x27;bronchus&#x27;, &#x27;caudate&#x27;, &#x27;cerebellum&#x27;, &#x27;cerebral cortex&#x27;,
+       &#x27;cervix&#x27;, &#x27;colon&#x27;, &#x27;duodenum&#x27;, &#x27;endometrium 1&#x27;, &#x27;endometrium 2&#x27;,
+       &#x27;epididymis&#x27;, &#x27;esophagus&#x27;, &#x27;fallopian tube&#x27;, &#x27;gallbladder&#x27;,
+       &#x27;heart muscle&#x27;, &#x27;hippocampus&#x27;, &#x27;kidney&#x27;, &#x27;liver&#x27;, &#x27;lung&#x27;,
+       &#x27;lymph node&#x27;, &#x27;nasopharynx&#x27;, &#x27;oral mucosa&#x27;, &#x27;ovary&#x27;, &#x27;pancreas&#x27;,
+       &#x27;parathyroid gland&#x27;, &#x27;placenta&#x27;, &#x27;prostate&#x27;, &#x27;rectum&#x27;,
+       &#x27;salivary gland&#x27;, &#x27;seminal vesicle&#x27;, &#x27;skeletal muscle&#x27;, &#x27;skin 1&#x27;,
+       &#x27;skin 2&#x27;, &#x27;small intestine&#x27;, &#x27;smooth muscle&#x27;, &#x27;soft tissue 1&#x27;,
+       &#x27;soft tissue 2&#x27;, &#x27;spleen&#x27;, &#x27;stomach 1&#x27;, &#x27;stomach 2&#x27;, &#x27;testis&#x27;,
+       &#x27;thyroid gland&#x27;, &#x27;tonsil&#x27;, &#x27;urinary bladder&#x27;, &#x27;vagina&#x27;, nan,
+       &#x27;hypothalamus&#x27;, &#x27;endometrium&#x27;, &#x27;hair&#x27;, &#x27;retina&#x27;,
+       &#x27;lactating breast&#x27;, &#x27;skin&#x27;, &#x27;thymus&#x27;, &#x27;cartilage&#x27;, &#x27;eye&#x27;,
+       &#x27;pituitary gland&#x27;, &#x27;choroid plexus&#x27;, &#x27;dorsal raphe&#x27;,
+       &#x27;substantia nigra&#x27;, &#x27;sole of foot&#x27;], dtype=object)</pre> <p>Every tissue I am interest in is present! <em>(Colon = large Intestine)</em> Let&#x27;s get rid of everything else.</p> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python">tissues <span class="syn-muted">=</span> <span class="syn-builtin">set</span><span class="syn-muted">(</span><span class="syn-string">&quot;colon kidney lung prostate spleen&quot;</span><span class="syn-muted">.</span>split<span class="syn-muted">(</span><span class="syn-muted">)</span><span class="syn-muted">)</span>
+mask <span class="syn-muted">=</span> df<span class="syn-muted">.</span>Tissue<span class="syn-muted">.</span>isin<span class="syn-muted">(</span>tissues<span class="syn-muted">)</span>
+df <span class="syn-muted">=</span> df<span class="syn-muted">[</span>mask<span class="syn-muted">]</span>
+df<span class="syn-muted">.</span>Tissue<span class="syn-muted">.</span>unique<span class="syn-muted">(</span><span class="syn-muted">)</span></code></pre></div> <pre class="cell-output">array([&#x27;colon&#x27;, &#x27;kidney&#x27;, &#x27;lung&#x27;, &#x27;prostate&#x27;, &#x27;spleen&#x27;], dtype=object)</pre> <p><em>All</em> images have been stained with some antibody, but we actually don&#x27;t want stained images. That&#x27;s why we&#x27;re only keeping those images in which no antigen has been detected (meaning no visible stain is present in these images).</p> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python">df <span class="syn-muted">=</span> df<span class="syn-muted">[</span>df<span class="syn-muted">.</span>Level <span class="syn-muted">==</span> <span class="syn-string">&quot;Not detected&quot;</span><span class="syn-muted">]</span>
+df<span class="syn-muted">.</span>Level<span class="syn-muted">.</span>unique<span class="syn-muted">(</span><span class="syn-muted">)</span></code></pre></div> <pre class="cell-output">array([&#x27;Not detected&#x27;], dtype=object)</pre> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python">df<span class="syn-muted">.</span>head<span class="syn-muted">(</span><span class="syn-muted">)</span></code></pre></div> <pre class="cell-output">Gene Gene name  Tissue                  Cell type  \
+20  ENSG00000000003    TSPAN6   colon          endothelial cells   
+22  ENSG00000000003    TSPAN6   colon  peripheral nerve/ganglion   
+35  ENSG00000000003    TSPAN6  kidney         cells in glomeruli   
+40  ENSG00000000003    TSPAN6    lung                macrophages   
+67  ENSG00000000003    TSPAN6  spleen          cells in red pulp   
+
+           Level Reliability  
+20  Not detected    Approved  
+22  Not detected    Approved  
+35  Not detected    Approved  
+40  Not detected    Approved  
+67  Not detected    Approved</pre> <p>Cell types and reliability are not relevant in this usecase, so let&#x27;s just get rid of those columns. Also, the actual name of the gene is redundant.</p> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python"><span class="syn-keyword">del</span> df<span class="syn-muted">[</span><span class="syn-string">&quot;Cell type&quot;</span><span class="syn-muted">]</span><span class="syn-muted">,</span> df<span class="syn-muted">[</span><span class="syn-string">&quot;Reliability&quot;</span><span class="syn-muted">]</span><span class="syn-muted">,</span> df<span class="syn-muted">[</span><span class="syn-string">&quot;Level&quot;</span><span class="syn-muted">]</span><span class="syn-muted">,</span> df<span class="syn-muted">[</span><span class="syn-string">&quot;Gene name&quot;</span><span class="syn-muted">]</span>
+df</code></pre></div> <pre class="cell-output">Gene  Tissue
+20       ENSG00000000003   colon
+22       ENSG00000000003   colon
+35       ENSG00000000003  kidney
+40       ENSG00000000003    lung
+67       ENSG00000000003  spleen
+...                  ...     ...
+1194410  ENSG00000288602  kidney
+1194414  ENSG00000288602    lung
+1194415  ENSG00000288602    lung
+1194416  ENSG00000288602    lung
+1194457  ENSG00000288602  spleen
+
+[67054 rows x 2 columns]</pre> <p>Some genes appear multiple times per organ. Let&#x27;s remove those duplicates.</p> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python">df <span class="syn-muted">=</span> df<span class="syn-muted">.</span>drop_duplicates<span class="syn-muted">(</span>subset<span class="syn-muted">=</span><span class="syn-muted">[</span><span class="syn-string">&quot;Gene&quot;</span><span class="syn-muted">,</span> <span class="syn-string">&quot;Tissue&quot;</span><span class="syn-muted">]</span><span class="syn-muted">)</span>
+df</code></pre></div> <pre class="cell-output">Gene  Tissue
+20       ENSG00000000003   colon
+35       ENSG00000000003  kidney
+40       ENSG00000000003    lung
+67       ENSG00000000003  spleen
+196      ENSG00000000457    lung
+...                  ...     ...
+1194296  ENSG00000288558    lung
+1194388  ENSG00000288602   colon
+1194410  ENSG00000288602  kidney
+1194414  ENSG00000288602    lung
+1194457  ENSG00000288602  spleen
+
+[37915 rows x 2 columns]</pre> <p>Now, how many <em>genes per organ</em> do we get?</p> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python">df<span class="syn-muted">.</span>groupby<span class="syn-muted">(</span><span class="syn-string">&quot;Tissue&quot;</span><span class="syn-muted">)</span><span class="syn-muted">.</span>count<span class="syn-muted">(</span><span class="syn-muted">)</span></code></pre></div> <pre class="cell-output">Gene
+Tissue        
+colon     7338
+kidney    7732
+lung      8747
+prostate  5174
+spleen    8924</pre> <p>To many to just download all at once, so we will randomly select 25 of each tissue. Since many genes have been more than one image, we will and up which 2-3 times as many images.</p> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python">rand_indices <span class="syn-muted">=</span> <span class="syn-muted">[</span><span class="syn-muted">]</span>
+<span class="syn-keyword">for</span> t <span class="syn-keyword">in</span> df<span class="syn-muted">.</span>Tissue<span class="syn-muted">.</span>unique<span class="syn-muted">(</span><span class="syn-muted">)</span><span class="syn-muted">:</span>
+    rand_idx <span class="syn-muted">=</span> <span class="syn-builtin">list</span><span class="syn-muted">(</span>np<span class="syn-muted">.</span>random<span class="syn-muted">.</span>choice<span class="syn-muted">(</span>df<span class="syn-muted">[</span>df<span class="syn-muted">.</span>Tissue<span class="syn-muted">==</span>t<span class="syn-muted">]</span><span class="syn-muted">.</span>index<span class="syn-muted">,</span> size<span class="syn-muted">=</span><span class="syn-number">25</span><span class="syn-muted">)</span><span class="syn-muted">)</span>
+    rand_indices <span class="syn-muted">=</span> <span class="syn-muted">[</span><span class="syn-muted">*</span>rand_indices<span class="syn-muted">,</span> <span class="syn-muted">*</span>rand_idx<span class="syn-muted">]</span>
+df <span class="syn-muted">=</span> df<span class="syn-muted">.</span>loc<span class="syn-muted">[</span>rand_indices<span class="syn-muted">]</span>
+df<span class="syn-muted">.</span>groupby<span class="syn-muted">(</span><span class="syn-string">&quot;Tissue&quot;</span><span class="syn-muted">)</span><span class="syn-muted">.</span>count<span class="syn-muted">(</span><span class="syn-muted">)</span></code></pre></div> <pre class="cell-output">Gene
+Tissue        
+colon       25
+kidney      25
+lung        25
+prostate    25
+spleen      25</pre> <p>Now, we need to build the URL&#x27;s of those images. Most genes have multiple images so we are going to expand our dataset with links to every image of every gene.</p> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python"><span class="syn-keyword">def</span> <span class="syn-function">build_url</span><span class="syn-muted">(</span>embl<span class="syn-muted">,</span> tissue<span class="syn-muted">)</span><span class="syn-muted">:</span> <span class="syn-keyword">return</span> <span class="syn-string">f&quot;https://www.proteinatlas.org/{embl}/tissue/{tissue}&quot;</span>
+<span class="syn-keyword">def</span> <span class="syn-function">extract_image_urls</span><span class="syn-muted">(</span>htext<span class="syn-muted">)</span><span class="syn-muted">:</span>
+    soup <span class="syn-muted">=</span> BS<span class="syn-muted">(</span>htext<span class="syn-muted">)</span>
+    image_urls <span class="syn-muted">=</span> soup<span class="syn-muted">.</span>body<span class="syn-muted">.</span>findAll<span class="syn-muted">(</span><span class="syn-string">&quot;img&quot;</span><span class="syn-muted">)</span>
+    image_urls <span class="syn-muted">=</span> <span class="syn-muted">[</span>il<span class="syn-muted">.</span>get_attribute_list<span class="syn-muted">(</span><span class="syn-string">&quot;src&quot;</span><span class="syn-muted">)</span><span class="syn-muted">[</span><span class="syn-number">0</span><span class="syn-muted">]</span> <span class="syn-keyword">for</span> il <span class="syn-keyword">in</span> image_urls<span class="syn-muted">]</span>
+    image_urls <span class="syn-muted">=</span> <span class="syn-muted">[</span>il <span class="syn-keyword">for</span> il <span class="syn-keyword">in</span> image_urls <span class="syn-keyword">if</span> <span class="syn-string">&quot;proteinatlas&quot;</span> <span class="syn-keyword">in</span> il<span class="syn-muted">]</span>
+    image_urls <span class="syn-muted">=</span> <span class="syn-muted">[</span><span class="syn-string">&quot;https:&quot;</span><span class="syn-muted">+</span>im_url <span class="syn-keyword">for</span> im_url <span class="syn-keyword">in</span> image_urls<span class="syn-muted">]</span>
+    <span class="syn-keyword">return</span> image_urls</code></pre></div> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python">urls <span class="syn-muted">=</span> <span class="syn-muted">[</span><span class="syn-muted">]</span>
+<span class="syn-keyword">for</span> gene<span class="syn-muted">,</span> tissue <span class="syn-keyword">in</span> tqdm<span class="syn-muted">(</span><span class="syn-builtin">list</span><span class="syn-muted">(</span><span class="syn-builtin">zip</span><span class="syn-muted">(</span>df<span class="syn-muted">.</span>Gene<span class="syn-muted">.</span>values<span class="syn-muted">,</span> df<span class="syn-muted">.</span>Tissue<span class="syn-muted">.</span>values<span class="syn-muted">)</span><span class="syn-muted">)</span><span class="syn-muted">)</span><span class="syn-muted">:</span>
+    url <span class="syn-muted">=</span> build_url<span class="syn-muted">(</span>gene<span class="syn-muted">,</span> tissue<span class="syn-muted">)</span>
+    r <span class="syn-muted">=</span> requests<span class="syn-muted">.</span>get<span class="syn-muted">(</span>url<span class="syn-muted">)</span>
+    <span class="syn-keyword">if</span> r<span class="syn-muted">.</span>status_code <span class="syn-muted">!=</span> <span class="syn-number">200</span><span class="syn-muted">:</span>
+        <span class="syn-builtin">print</span><span class="syn-muted">(</span><span class="syn-string">f&quot;Url: {url} didn&#x27;t work&quot;</span><span class="syn-muted">)</span>
+        urls<span class="syn-muted">.</span>append<span class="syn-muted">(</span><span class="syn-number">None</span><span class="syn-muted">)</span>
+        <span class="syn-keyword">continue</span>
+    urls<span class="syn-muted">.</span>append<span class="syn-muted">(</span><span class="syn-string">&quot;;&quot;</span><span class="syn-muted">.</span>join<span class="syn-muted">(</span>extract_image_urls<span class="syn-muted">(</span>r<span class="syn-muted">.</span>text<span class="syn-muted">)</span><span class="syn-muted">)</span><span class="syn-muted">)</span>
+    time<span class="syn-muted">.</span>sleep<span class="syn-muted">(</span><span class="syn-number">0.1</span><span class="syn-muted">)</span>
+df<span class="syn-muted">[</span><span class="syn-string">&quot;urls&quot;</span><span class="syn-muted">]</span> <span class="syn-muted">=</span> urls</code></pre></div> <p>We save the data, so that we don&#x27;t have to run this code twice.</p> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python">df<span class="syn-muted">.</span>to_csv<span class="syn-muted">(</span><span class="syn-string">&quot;protein_atlas_scrape.csv&quot;</span><span class="syn-muted">,</span> index<span class="syn-muted">=</span><span class="syn-number">False</span><span class="syn-muted">)</span></code></pre></div> <p>And finally, we download the images.</p> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python"><span class="syn-keyword">def</span> <span class="syn-function">download_image</span><span class="syn-muted">(</span>image_url<span class="syn-muted">,</span> filename<span class="syn-muted">)</span><span class="syn-muted">:</span>
+    <span class="syn-keyword">try</span><span class="syn-muted">:</span>
+        r <span class="syn-muted">=</span> requests<span class="syn-muted">.</span>get<span class="syn-muted">(</span>image_url<span class="syn-muted">,</span> stream<span class="syn-muted">=</span><span class="syn-number">True</span><span class="syn-muted">)</span>
+        <span class="syn-keyword">if</span> r<span class="syn-muted">.</span>status_code <span class="syn-muted">==</span> <span class="syn-number">200</span><span class="syn-muted">:</span>
+            r<span class="syn-muted">.</span>raw<span class="syn-muted">.</span>decode_content <span class="syn-muted">=</span> <span class="syn-number">True</span>
+            <span class="syn-keyword">with</span> <span class="syn-builtin">open</span><span class="syn-muted">(</span>filename<span class="syn-muted">,</span><span class="syn-string">&#x27;wb&#x27;</span><span class="syn-muted">)</span> <span class="syn-keyword">as</span> f<span class="syn-muted">:</span> shutil<span class="syn-muted">.</span>copyfileobj<span class="syn-muted">(</span>r<span class="syn-muted">.</span>raw<span class="syn-muted">,</span> f<span class="syn-muted">)</span>
+        <span class="syn-keyword">else</span><span class="syn-muted">:</span> <span class="syn-keyword">return</span>
+    <span class="syn-keyword">except</span><span class="syn-muted">:</span> <span class="syn-keyword">return</span></code></pre></div> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python">DOWNLOAD_DIR <span class="syn-muted">=</span> Path<span class="syn-muted">(</span><span class="syn-string">&quot;images&quot;</span><span class="syn-muted">)</span>
+DOWNLOAD_DIR<span class="syn-muted">.</span>mkdir<span class="syn-muted">(</span>exist_ok<span class="syn-muted">=</span><span class="syn-number">True</span><span class="syn-muted">)</span>
+<span class="syn-keyword">for</span> _<span class="syn-muted">,</span>row <span class="syn-keyword">in</span> tqdm<span class="syn-muted">(</span>df<span class="syn-muted">.</span>iterrows<span class="syn-muted">(</span><span class="syn-muted">)</span><span class="syn-muted">,</span> total<span class="syn-muted">=</span><span class="syn-builtin">len</span><span class="syn-muted">(</span>df<span class="syn-muted">)</span><span class="syn-muted">)</span><span class="syn-muted">:</span>
+    <span class="syn-keyword">for</span> i<span class="syn-muted">,</span> url <span class="syn-keyword">in</span> <span class="syn-builtin">enumerate</span><span class="syn-muted">(</span>row<span class="syn-muted">.</span>urls<span class="syn-muted">.</span>split<span class="syn-muted">(</span><span class="syn-string">&quot;;&quot;</span><span class="syn-muted">)</span><span class="syn-muted">)</span><span class="syn-muted">:</span>
+        image_name <span class="syn-muted">=</span> DOWNLOAD_DIR<span class="syn-muted">/</span><span class="syn-string">f&quot;{row.Gene}_{row.Tissue}_{i}.jpg&quot;</span>
+        download_image<span class="syn-muted">(</span>url<span class="syn-muted">,</span> image_name<span class="syn-muted">)</span>
+        time<span class="syn-muted">.</span>sleep<span class="syn-muted">(</span><span class="syn-number">0.1</span><span class="syn-muted">)</span></code></pre></div> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python"><span class="syn-builtin">len</span><span class="syn-muted">(</span><span class="syn-builtin">list</span><span class="syn-muted">(</span>Path<span class="syn-muted">(</span><span class="syn-string">&quot;images&quot;</span><span class="syn-muted">)</span><span class="syn-muted">.</span>iterdir<span class="syn-muted">(</span><span class="syn-muted">)</span><span class="syn-muted">)</span><span class="syn-muted">)</span></code></pre></div> <pre class="cell-output">506</pre> <p>Now we have <strong>506</strong> images! Let&#x27;s look at a random one.</p> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python"><span class="syn-comment">#| label: Scraped Image</span>
+<span class="syn-comment">#| fig-cap: Random Image from our new new dataset.</span>
+image_file <span class="syn-muted">=</span> np<span class="syn-muted">.</span>random<span class="syn-muted">.</span>choice<span class="syn-muted">(</span><span class="syn-builtin">list</span><span class="syn-muted">(</span>Path<span class="syn-muted">(</span><span class="syn-string">&quot;images&quot;</span><span class="syn-muted">)</span><span class="syn-muted">.</span>iterdir<span class="syn-muted">(</span><span class="syn-muted">)</span><span class="syn-muted">)</span><span class="syn-muted">)</span>
+Image<span class="syn-muted">.</span><span class="syn-builtin">open</span><span class="syn-muted">(</span>image_file<span class="syn-muted">)</span></code></pre></div> <figure class="article-figure"><img src="output-30-0.png" alt="Notebook output" loading="lazy"></figure>
+<pre class="cell-output">&lt;PIL.JpegImagePlugin.JpegImageFile image mode=RGB size=750x750&gt;</pre> <p>And there we go! We now have histologic images we can use for anything we like.</p>
+  </article>
+  </main>
+  <footer class="site-footer"><nav class="social-links" aria-label="Social links"><a class="social-link" href="https://github.com/fhatje" aria-label="GitHub" title="GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .5A12 12 0 0 0 8.2 23.9c.6.1.8-.2.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.9 1.2 1.9 1.2 1.1 1.9 2.9 1.3 3.6 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.4-5.5-6A4.7 4.7 0 0 1 7.2 8c-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.3 11.3 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1a4.7 4.7 0 0 1 1.2 3.3c0 4.6-2.8 5.7-5.5 6 .4 .4.8 1.1.8 2.3v3.4c0 .4.2.7.8.6A12 12 0 0 0 12 .5Z"/></svg></a><span class="social-link social-link-placeholder" aria-label="X" title="X"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-4.9-7.4L5.6 22H2.5l7.3-8.4L1.2 2h6.5l4.4 6.8L18.9 2Zm-1.1 18h1.7L6.7 3.9H4.9L17.8 20Z"/></svg></span><a class="social-link" href="https://de.linkedin.com/in/favian-hatje-2892181a1" aria-label="LinkedIn" title="LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4.98 3.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5ZM3 9h4v12H3V9Zm7 0h3.8v1.7h.1c.5-1 1.8-2.1 3.8-2.1 4 0 4.8 2.6 4.8 6V21h-4v-5.5c0-1.3 0-3-1.9-3s-2.2 1.5-2.2 2.9V21h-4V9Z"/></svg></a></nav></footer>
+  <script src="/assets/site.js"></script>
+</body>
+</html>
