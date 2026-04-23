@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="FineTuning Large Language Models with Custom Data Using Hugging Face and Unsloth on a Single GPU &lt;span style=&quot;color:gray;fontsize:small;&quot; This image was generated using DALLE and t">
+  <title>Fine-tuning Custom Language Models with Hugging Face and Unsloth</title>
+  <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <button class="theme-toggle" type="button" aria-label="Toggle color theme" data-theme-toggle></button>
+    <nav class="site-nav" aria-label="Primary navigation"><a href="/">Home</a><span class="nav-separator" aria-hidden="true">|</span><a href="/blog/" class="active" aria-current="page">Blog</a><span class="nav-separator" aria-hidden="true">|</span><a href="/projects/">Projects</a></nav>
+  </header>
+  <main>
+  <section class="article-head">
+    <a class="back-link" href="/blog/">Back to blog</a>
+    <p class="eyebrow">Notebook</p>
+    <h1>Fine-tuning Custom Language Models with Hugging Face and Unsloth</h1>
+    <p class="article-meta">2024-04-21 | Favian Hatje</p>
+    <div class="chips"><span>deep learning</span><span>huggingface</span><span>unsloth</span><span>LLM</span><span>finetuning</span></div>
+  </section>
+  <article class="article-body">
+    <p>Fine-Tuning Large Language Models with Custom Data Using Hugging Face and Unsloth on a Single GPU</p> <figure class="article-figure"><img src="Unsloth_Huggingface.webp" alt="" loading="lazy"></figure>
+<p>&lt;span style=&quot;color:gray;font-size:small;&quot;&gt; This image was generated using DALL-E and the following prompt:&lt;/br&gt; <em>A sloth running through a jungle, carrying a huggingface emoji in its arms. The emoji has hearts as eyes. Motionblur in the background. Flaming foot steps. 3D rendering. 16:9 aspect ratio.</em> &lt;/span&gt;</p> <h3>Why Unsloth?</h3>
+<p>Unsloth is a relatively new library that offers speed and ease of use. It employs quantization and is built on top of Hugging Face, providing support for models like Mistral, Gemma, and Llama. If your preferred model is supported, Unsloth is currently one of the best options available for fine-tuning large language models.</p> <h3>Installation</h3>
+<p>Begin by setting up a dedicated environment. To install <a href="https://unsloth.ai">Unsloth</a>, follow the instructions provided on their <a href="https://github.com/unslothai/unsloth?tab=readme-ov-file#conda-installation">GitHub page</a>.</p> <h3>Dataset Creation</h3>
+<p>Convert your raw conversation or text data into a list of lists of dictionaries, as described in the <a href="https://github.com/unslothai/unsloth/wiki#chat-templates">Unsloth wiki</a>:</p>
+<pre class="code-block"><code class="language-">[
+    [{&quot;from&quot;: &quot;human&quot;, &quot;value&quot;: &quot;Hi there!&quot;},
+     {&quot;from&quot;: &quot;gpt&quot;, &quot;value&quot;: &quot;Hi how can I help?&quot;},
+     {&quot;from&quot;: &quot;human&quot;, &quot;value&quot;: &quot;What is 2+2?&quot;}],
+    [{&quot;from&quot;: &quot;human&quot;, &quot;value&quot;: &quot;What&#x27;s your name?&quot;},
+     {&quot;from&quot;: &quot;gpt&quot;, &quot;value&quot;: &quot;I&#x27;m Daniel!&quot;},
+     {&quot;from&quot;: &quot;human&quot;, &quot;value&quot;: &quot;Ok! Nice!&quot;},
+     {&quot;from&quot;: &quot;gpt&quot;, &quot;value&quot;: &quot;What can I do for you?&quot;},
+     {&quot;from&quot;: &quot;human&quot;, &quot;value&quot;: &quot;Oh nothing :)&quot;},],
+]</code></pre> <p>Next, determine the format required for parsing the data before tokenization. Begin by loading the tokenizer, alongside the model. For this tutorial, we will use the <a href="https://huggingface.co/google/gemma-1.1-2b-it">google/gemma-1.1-2b-it</a> model. Despite its seemingly large size, it is relatively small with only 2.51 billion parameters.</p> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python"><span class="syn-keyword">from</span> unsloth <span class="syn-keyword">import</span> FastLanguageModel
+
+base_model <span class="syn-muted">=</span> <span class="syn-string">&quot;google/gemma-1.1-2b-it&quot;</span>
+model<span class="syn-muted">,</span> tokenizer <span class="syn-muted">=</span> FastLanguageModel<span class="syn-muted">.</span>from_pretrained<span class="syn-muted">(</span>
+    model_name <span class="syn-muted">=</span> base_model<span class="syn-muted">,</span>
+    load_in_4bit<span class="syn-muted">=</span><span class="syn-number">True</span><span class="syn-muted">,</span> <span class="syn-comment"># Load the model in 4-bit mode</span>
+<span class="syn-muted">)</span></code></pre></div> <pre class="cell-output">==((====))==  Unsloth: Fast Gemma patching release 2024.4
+   \\   /|    GPU: NVIDIA GeForce RTX 3090. Max memory: 23.669 GB. Platform = Linux.
+O^O/ \_/ \    Pytorch: 2.2.2. CUDA = 8.6. CUDA Toolkit = 12.1.
+\        /    Bfloat16 = TRUE. Xformers = 0.0.25.post1. FA = False.
+ &quot;-____-&quot;     Free Apache license: http://github.com/unslothai/unsloth</pre> <pre class="cell-output">Loading checkpoint shards:   0%|          | 0/2 [00:00&lt;?, ?it/s]</pre> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python">tokenizer<span class="syn-muted">.</span>chat_template</code></pre></div> <pre class="cell-output">&quot;{{ bos_token }}{% if messages[0][&#x27;role&#x27;] == &#x27;system&#x27; %}{{ raise_exception(&#x27;System role not supported&#x27;) }}{% endif %}{% for message in messages %}{% if (message[&#x27;role&#x27;] == &#x27;user&#x27;) != (loop.index0 % 2 == 0) %}{{ raise_exception(&#x27;Conversation roles must alternate user/assistant/user/assistant/...&#x27;) }}{% endif %}{% if (message[&#x27;role&#x27;] == &#x27;assistant&#x27;) %}{% set role = &#x27;model&#x27; %}{% else %}{% set role = message[&#x27;role&#x27;] %}{% endif %}{{ &#x27;&lt;start_of_turn&gt;&#x27; + role + &#x27;\n&#x27; + message[&#x27;content&#x27;] | trim + &#x27;&lt;end_of_turn&gt;\n&#x27; }}{% endfor %}{% if add_generation_prompt %}{{&#x27;&lt;start_of_turn&gt;model\n&#x27;}}{% endif %}&quot;</pre> <p>The chat template utilizes a Jinja template. Due to Jinja&#x27;s lenient handling of whitespaces and new lines, it&#x27;s crucial to remove any unnecessary whitespaces and new lines to ensure clarity.</p>
+<p>Below is the template presented in a more readable format:</p>
+<pre class="code-block"><code class="language-">{{ bos_token }}
+{% if messages[0][&#x27;role&#x27;] == &#x27;system&#x27; %}
+    {{ raise_exception(&#x27;System role not supported&#x27;) }}
+{% endif %}
+{% for message in messages %}
+    {% if (message[&#x27;role&#x27;] == &#x27;user&#x27;) != (loop.index0 % 2 == 0) %}
+        {{ raise_exception(&#x27;Conversation roles must alternate user/assistant/user/assistant/...&#x27;) }}
+    {% endif %}
+    {% if (message[&#x27;role&#x27;] == &#x27;assistant&#x27;) %}
+        {% set role = &#x27;model&#x27; %}
+    {% else %}
+        {% set role = message[&#x27;role&#x27;] %}
+    {% endif %}
+    {{ &#x27;&lt;start_of_turn&gt;&#x27; + role + &#x27;\n&#x27; + message[&#x27;content&#x27;] | trim + &#x27;&lt;end_of_turn&gt;\n&#x27; }}
+{% endfor %}
+{% if add_generation_prompt %}
+    {{&#x27;&lt;start_of_turn&gt;model\n&#x27;}}
+{% endif %}</code></pre>
+<p>Note that each message is represented as a dictionary containing a <code>from</code> and <code>value</code> field. In the data, the <code>from</code> values are labeled as <em>gpt</em> and <em>human</em>, whereas in the chat template, they are identified as <em>assistant</em> and <em>user</em>. To align these, it is simpler to adjust the data. However, if required, roles can be modified in the tokenizer using the mapping argument:</p>
+<pre class="code-block"><code class="language-">mapping = {
+    &quot;role&quot; : &quot;from&quot;,
+    &quot;content&quot; : &quot;value&quot;,
+    &quot;user&quot; : &quot;human&quot;,
+    &quot;assistant&quot; : &quot;gpt&quot;
+}</code></pre> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python"><span class="syn-keyword">from</span> unsloth<span class="syn-muted">.</span>chat_templates <span class="syn-keyword">import</span> get_chat_template
+
+tokenizer <span class="syn-muted">=</span> get_chat_template<span class="syn-muted">(</span>
+    tokenizer<span class="syn-muted">,</span>
+    chat_template <span class="syn-muted">=</span> <span class="syn-muted">(</span>
+        tokenizer<span class="syn-muted">.</span>chat_template<span class="syn-muted">,</span> <span class="syn-comment"># we are not changing anything here,</span>
+        tokenizer<span class="syn-muted">.</span>eos_token<span class="syn-muted">)</span><span class="syn-muted">,</span>    <span class="syn-comment"># just passing in the default values</span>
+    mapping <span class="syn-muted">=</span> <span class="syn-muted">{</span>
+        <span class="syn-string">&quot;role&quot;</span> <span class="syn-muted">:</span> <span class="syn-string">&quot;from&quot;</span><span class="syn-muted">,</span>     <span class="syn-comment"># Change &#x27;role&#x27; to ‘from&#x27;</span>
+        <span class="syn-string">&quot;content&quot;</span> <span class="syn-muted">:</span> <span class="syn-string">&quot;value&quot;</span><span class="syn-muted">,</span> <span class="syn-comment"># Change &#x27;content&#x27; to value&#x27;</span>
+        <span class="syn-string">&quot;user&quot;</span> <span class="syn-muted">:</span> <span class="syn-string">&quot;human&quot;</span><span class="syn-muted">,</span>    <span class="syn-comment"># Default and not relevant here</span>
+        <span class="syn-string">&quot;assistant&quot;</span> <span class="syn-muted">:</span> <span class="syn-string">&quot;gpt&quot;</span>  <span class="syn-comment"># Default and not relevant here</span>
+        <span class="syn-muted">}</span><span class="syn-muted">,</span>
+    map_eos_token <span class="syn-muted">=</span> <span class="syn-number">False</span><span class="syn-muted">,</span>
+<span class="syn-muted">)</span></code></pre></div> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python">data <span class="syn-muted">=</span> <span class="syn-muted">[</span>
+    <span class="syn-comment"># Conversation 1</span>
+    <span class="syn-muted">[</span><span class="syn-muted">{</span><span class="syn-string">&quot;from&quot;</span><span class="syn-muted">:</span> <span class="syn-string">&quot;human&quot;</span><span class="syn-muted">,</span> <span class="syn-string">&quot;value&quot;</span><span class="syn-muted">:</span> <span class="syn-string">&quot;Hi there!&quot;</span><span class="syn-muted">}</span><span class="syn-muted">,</span>
+     <span class="syn-muted">{</span><span class="syn-string">&quot;from&quot;</span><span class="syn-muted">:</span> <span class="syn-string">&quot;gpt&quot;</span><span class="syn-muted">,</span> <span class="syn-string">&quot;value&quot;</span><span class="syn-muted">:</span> <span class="syn-string">&quot;Hi how can I help?&quot;</span><span class="syn-muted">}</span><span class="syn-muted">,</span>
+     <span class="syn-muted">{</span><span class="syn-string">&quot;from&quot;</span><span class="syn-muted">:</span> <span class="syn-string">&quot;human&quot;</span><span class="syn-muted">,</span> <span class="syn-string">&quot;value&quot;</span><span class="syn-muted">:</span> <span class="syn-string">&quot;What is 2+2?&quot;</span><span class="syn-muted">}</span><span class="syn-muted">]</span><span class="syn-muted">,</span>
+    <span class="syn-comment"># Conversation 2</span>
+    <span class="syn-muted">[</span><span class="syn-muted">{</span><span class="syn-string">&quot;from&quot;</span><span class="syn-muted">:</span> <span class="syn-string">&quot;human&quot;</span><span class="syn-muted">,</span> <span class="syn-string">&quot;value&quot;</span><span class="syn-muted">:</span> <span class="syn-string">&quot;What&#x27;s your name?&quot;</span><span class="syn-muted">}</span><span class="syn-muted">,</span>
+     <span class="syn-muted">{</span><span class="syn-string">&quot;from&quot;</span><span class="syn-muted">:</span> <span class="syn-string">&quot;gpt&quot;</span><span class="syn-muted">,</span> <span class="syn-string">&quot;value&quot;</span><span class="syn-muted">:</span> <span class="syn-string">&quot;I&#x27;m Daniel!&quot;</span><span class="syn-muted">}</span><span class="syn-muted">,</span>
+     <span class="syn-muted">{</span><span class="syn-string">&quot;from&quot;</span><span class="syn-muted">:</span> <span class="syn-string">&quot;human&quot;</span><span class="syn-muted">,</span> <span class="syn-string">&quot;value&quot;</span><span class="syn-muted">:</span> <span class="syn-string">&quot;Ok! Nice!&quot;</span><span class="syn-muted">}</span><span class="syn-muted">,</span>
+     <span class="syn-muted">{</span><span class="syn-string">&quot;from&quot;</span><span class="syn-muted">:</span> <span class="syn-string">&quot;gpt&quot;</span><span class="syn-muted">,</span> <span class="syn-string">&quot;value&quot;</span><span class="syn-muted">:</span> <span class="syn-string">&quot;What can I do for you?&quot;</span><span class="syn-muted">}</span><span class="syn-muted">,</span>
+     <span class="syn-muted">{</span><span class="syn-string">&quot;from&quot;</span><span class="syn-muted">:</span> <span class="syn-string">&quot;human&quot;</span><span class="syn-muted">,</span> <span class="syn-string">&quot;value&quot;</span><span class="syn-muted">:</span> <span class="syn-string">&quot;Oh nothing :)&quot;</span><span class="syn-muted">}</span><span class="syn-muted">,</span><span class="syn-muted">]</span><span class="syn-muted">,</span>
+<span class="syn-muted">]</span></code></pre></div> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python">tokenizer<span class="syn-muted">.</span>apply_chat_template<span class="syn-muted">(</span>data<span class="syn-muted">[</span><span class="syn-number">0</span><span class="syn-muted">]</span><span class="syn-muted">,</span> tokenize<span class="syn-muted">=</span><span class="syn-number">False</span><span class="syn-muted">)</span></code></pre></div> <pre class="cell-output">&#x27;&lt;bos&gt;&lt;start_of_turn&gt;human\nHi there!&lt;end_of_turn&gt;\n&lt;start_of_turn&gt;model\nHi how can I help?&lt;end_of_turn&gt;\n&lt;start_of_turn&gt;human\nWhat is 2+2?&lt;end_of_turn&gt;\n&#x27;</pre> <p>Now that both the data and tokenizer are set up, you can proceed to create a Hugging Face dataset:</p> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python"><span class="syn-keyword">from</span> datasets <span class="syn-keyword">import</span> Dataset
+
+<span class="syn-comment"># Hugging Face expects data in the following format</span>
+data <span class="syn-muted">=</span> <span class="syn-muted">{</span><span class="syn-string">&quot;samples&quot;</span><span class="syn-muted">:</span> data<span class="syn-muted">}</span>
+dataset <span class="syn-muted">=</span> Dataset<span class="syn-muted">.</span>from_dict<span class="syn-muted">(</span>data<span class="syn-muted">)</span>
+
+<span class="syn-comment"># Optionally, create training and testing splits, </span>
+<span class="syn-comment"># and push the dataset to the Hugging Face Hub:</span>
+
+<span class="syn-comment"># dataset = dataset.train_test_split(test_size=0.1)</span>
+<span class="syn-comment"># dataset.push_to_hub(&quot;new_custom_dataset&quot;)</span>
+
+<span class="syn-comment"># To load the dataset from the hub:</span>
+<span class="syn-comment"># dataset = load_dataset(&quot;your_huggingface_name/new_custom_dataset&quot;)</span></code></pre></div> <h3>Preprocessing the Dataset for Training</h3>
+<p>Finally, preprocess the dataset for training by mapping each entry through a function that applies the chat template using the tokenizer. This step prepares the data without converting it into tokens yet.</p> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python"><span class="syn-comment"># Lastly, we preprocess the dataset for training</span>
+dataset <span class="syn-muted">=</span> dataset<span class="syn-muted">.</span><span class="syn-builtin">map</span><span class="syn-muted">(</span>
+    <span class="syn-keyword">lambda</span> x<span class="syn-muted">:</span> <span class="syn-muted">{</span>
+        <span class="syn-string">&quot;preprocessed&quot;</span><span class="syn-muted">:</span> tokenizer<span class="syn-muted">.</span>apply_chat_template<span class="syn-muted">(</span>
+            x<span class="syn-muted">[</span><span class="syn-string">&quot;samples&quot;</span><span class="syn-muted">]</span><span class="syn-muted">,</span> 
+            tokenize<span class="syn-muted">=</span><span class="syn-number">False</span><span class="syn-muted">,</span>              <span class="syn-comment"># Avoid converting text into tokens at this stage</span>
+            add_generation_prompt<span class="syn-muted">=</span><span class="syn-number">False</span><span class="syn-muted">,</span> <span class="syn-comment"># Required for setting up inference</span>
+            add_special_tokens<span class="syn-muted">=</span><span class="syn-number">False</span>     <span class="syn-comment"># May be necessary depending on model specifics</span>
+        <span class="syn-muted">)</span>
+    <span class="syn-muted">}</span>
+<span class="syn-muted">)</span></code></pre></div> <pre class="cell-output">Map:   0%|          | 0/2 [00:00&lt;?, ? examples/s]</pre> <p>Now our dataset features two fields: <code>samples</code>, which contains the raw conversations, and <code>preprocessed</code>, where the chat template has been applied. Additionally, special tokens have been added to the preprocessed data:</p> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python">dataset<span class="syn-muted">[</span><span class="syn-string">&quot;samples&quot;</span><span class="syn-muted">]</span><span class="syn-muted">[</span><span class="syn-number">0</span><span class="syn-muted">]</span></code></pre></div> <pre class="cell-output">[{&#x27;from&#x27;: &#x27;human&#x27;, &#x27;value&#x27;: &#x27;Hi there!&#x27;},
+ {&#x27;from&#x27;: &#x27;gpt&#x27;, &#x27;value&#x27;: &#x27;Hi how can I help?&#x27;},
+ {&#x27;from&#x27;: &#x27;human&#x27;, &#x27;value&#x27;: &#x27;What is 2+2?&#x27;}]</pre> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python">dataset<span class="syn-muted">[</span><span class="syn-string">&quot;preprocessed&quot;</span><span class="syn-muted">]</span><span class="syn-muted">[</span><span class="syn-number">0</span><span class="syn-muted">]</span></code></pre></div> <pre class="cell-output">&#x27;&lt;bos&gt;&lt;start_of_turn&gt;human\nHi there!&lt;end_of_turn&gt;\n&lt;start_of_turn&gt;model\nHi how can I help?&lt;end_of_turn&gt;\n&lt;start_of_turn&gt;human\nWhat is 2+2?&lt;end_of_turn&gt;\n&#x27;</pre> <p>Ensure that the preprocessed output is formatted precisely as you and the model require. If there is any uncertainty about the format, consult the respective paper or documentation associated with the model to verify the expected data structure and formatting details. This is crucial because any discrepancies in format can lead to a degradation in model performance.</p> <h3>PEFT Training</h3>
+<p>To optimize memory usage and speed during fine-tuning, we will employ a technique known as <a href="https://arxiv.org/abs/2305.14314">QLORA</a>. Unsloth manages the quantization and LoRA (Low-Rank Adaptation) parameters for us, streamlining the process.</p> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python">model <span class="syn-muted">=</span> FastLanguageModel<span class="syn-muted">.</span>get_peft_model<span class="syn-muted">(</span>
+    model<span class="syn-muted">,</span>
+    r <span class="syn-muted">=</span> <span class="syn-number">16</span><span class="syn-muted">,</span> <span class="syn-comment"># Rank of the lora adapters</span>
+    target_modules <span class="syn-muted">=</span> <span class="syn-muted">[</span><span class="syn-string">&quot;q_proj&quot;</span><span class="syn-muted">,</span> <span class="syn-string">&quot;k_proj&quot;</span><span class="syn-muted">,</span> <span class="syn-string">&quot;v_proj&quot;</span><span class="syn-muted">,</span> <span class="syn-string">&quot;o_proj&quot;</span><span class="syn-muted">,</span>
+                      <span class="syn-string">&quot;gate_proj&quot;</span><span class="syn-muted">,</span> <span class="syn-string">&quot;up_proj&quot;</span><span class="syn-muted">,</span> <span class="syn-string">&quot;down_proj&quot;</span><span class="syn-muted">,</span><span class="syn-muted">]</span><span class="syn-muted">,</span>
+    lora_alpha <span class="syn-muted">=</span> <span class="syn-number">16</span><span class="syn-muted">,</span>
+    lora_dropout <span class="syn-muted">=</span> <span class="syn-number">0.1</span><span class="syn-muted">,</span> <span class="syn-comment"># Supports any, but = 0 is optimized</span>
+    bias <span class="syn-muted">=</span> <span class="syn-string">&quot;none&quot;</span><span class="syn-muted">,</span>      <span class="syn-comment"># Supports any, but = &quot;none&quot; is optimized</span>
+    use_gradient_checkpointing <span class="syn-muted">=</span> <span class="syn-number">True</span><span class="syn-muted">,</span>
+    random_state <span class="syn-muted">=</span> <span class="syn-number">3407</span><span class="syn-muted">,</span>
+    max_seq_length <span class="syn-muted">=</span> <span class="syn-number">2048</span><span class="syn-muted">,</span>
+    use_rslora <span class="syn-muted">=</span> <span class="syn-number">False</span><span class="syn-muted">,</span>  <span class="syn-comment"># We support rank stabilized LoRA</span>
+    loftq_config <span class="syn-muted">=</span> <span class="syn-number">None</span><span class="syn-muted">,</span> <span class="syn-comment"># And LoftQ</span>
+<span class="syn-muted">)</span></code></pre></div> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python"><span class="syn-keyword">import</span> torch
+<span class="syn-keyword">from</span> trl <span class="syn-keyword">import</span> SFTTrainer
+<span class="syn-keyword">from</span> transformers <span class="syn-keyword">import</span> TrainingArguments
+
+trainer <span class="syn-muted">=</span> SFTTrainer<span class="syn-muted">(</span>
+    model <span class="syn-muted">=</span> model<span class="syn-muted">,</span>
+    train_dataset <span class="syn-muted">=</span> dataset<span class="syn-muted">,</span>
+    dataset_text_field <span class="syn-muted">=</span> <span class="syn-string">&quot;preprocessed&quot;</span><span class="syn-muted">,</span>
+    max_seq_length <span class="syn-muted">=</span> <span class="syn-number">2048</span><span class="syn-muted">,</span>
+    tokenizer <span class="syn-muted">=</span> tokenizer<span class="syn-muted">,</span>
+    args <span class="syn-muted">=</span> TrainingArguments<span class="syn-muted">(</span>
+        <span class="syn-comment"># Adjust the parameters to your needs</span>
+        per_device_train_batch_size <span class="syn-muted">=</span> <span class="syn-number">8</span><span class="syn-muted">,</span>
+        gradient_accumulation_steps <span class="syn-muted">=</span> <span class="syn-number">1</span><span class="syn-muted">,</span>
+        warmup_steps <span class="syn-muted">=</span> <span class="syn-number">1</span><span class="syn-muted">,</span>       
+        max_steps <span class="syn-muted">=</span> <span class="syn-number">5</span><span class="syn-muted">,</span>          
+        fp16 <span class="syn-muted">=</span> <span class="syn-keyword">not</span> torch<span class="syn-muted">.</span>cuda<span class="syn-muted">.</span>is_bf16_supported<span class="syn-muted">(</span><span class="syn-muted">)</span><span class="syn-muted">,</span>
+        bf16 <span class="syn-muted">=</span> torch<span class="syn-muted">.</span>cuda<span class="syn-muted">.</span>is_bf16_supported<span class="syn-muted">(</span><span class="syn-muted">)</span><span class="syn-muted">,</span>
+        logging_steps <span class="syn-muted">=</span> <span class="syn-number">1</span><span class="syn-muted">,</span>      
+        save_steps <span class="syn-muted">=</span> <span class="syn-number">100</span><span class="syn-muted">,</span>       
+        output_dir <span class="syn-muted">=</span> <span class="syn-string">&quot;new_model_name&quot;</span><span class="syn-muted">,</span>
+        optim <span class="syn-muted">=</span> <span class="syn-string">&quot;adamw_8bit&quot;</span><span class="syn-muted">,</span>
+        report_to<span class="syn-muted">=</span><span class="syn-string">&quot;tensorboard&quot;</span><span class="syn-muted">,</span>
+        learning_rate <span class="syn-muted">=</span> <span class="syn-number">1e-3</span><span class="syn-muted">,</span>
+    <span class="syn-muted">)</span><span class="syn-muted">,</span>
+<span class="syn-muted">)</span></code></pre></div> <pre class="cell-output">Map:   0%|          | 0/2 [00:00&lt;?, ? examples/s]</pre> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python">trainer<span class="syn-muted">.</span>train<span class="syn-muted">(</span><span class="syn-muted">)</span></code></pre></div> <pre class="cell-output">&lt;IPython.core.display.HTML object&gt;</pre> <pre class="cell-output">TrainOutput(global_step=5, training_loss=11.2875, metrics={&#x27;train_runtime&#x27;: 1.4908, &#x27;train_samples_per_second&#x27;: 26.831, &#x27;train_steps_per_second&#x27;: 3.354, &#x27;total_flos&#x27;: 7880446279680.0, &#x27;train_loss&#x27;: 11.2875, &#x27;epoch&#x27;: 5.0})</pre> <p>Once the model is trained, you can merge the LoRA adapters into the base model to finalize your newly fine-tuned model.</p> <div class="code-cell"><pre class="code-block code-block-python"><code class="language-python">model<span class="syn-muted">.</span>save_pretrained_merged<span class="syn-muted">(</span><span class="syn-string">&quot;new_model&quot;</span><span class="syn-muted">,</span> tokenizer<span class="syn-muted">,</span> save_method <span class="syn-muted">=</span> <span class="syn-string">&quot;merged_16bit&quot;</span><span class="syn-muted">,</span><span class="syn-muted">)</span>
+<span class="syn-comment"># alternatively we can push it to the huggingface hub</span>
+<span class="syn-comment"># model.push_to_hub_merged(&quot;your hf_name/new_model&quot;, tokenizer, save_method = &quot;merged_16bit&quot;, token = &quot;&quot;)</span></code></pre></div> <pre class="cell-output">Unsloth: Merging 4bit and LoRA weights to 16bit...
+Unsloth: Will use up to 18.43 out of 31.25 RAM for saving.</pre> <pre class="cell-output">Unsloth: Saving tokenizer...</pre> <pre class="cell-output">Done.
+Unsloth: Saving model... This might take 5 minutes for Llama-7b...
+Done.</pre> <p>And there you have it—a large language model fine-tuned on our custom dataset. Both the model and tokenizer can now be loaded using Hugging Face alone. Unsloth also provides an inference solution. Enjoy exploring the capabilities of your fine-tuned model!</p>
+  </article>
+  </main>
+  <footer class="site-footer"><nav class="social-links" aria-label="Social links"><a class="social-link" href="https://github.com/fhatje" aria-label="GitHub" title="GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .5A12 12 0 0 0 8.2 23.9c.6.1.8-.2.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.9 1.2 1.9 1.2 1.1 1.9 2.9 1.3 3.6 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.4-5.5-6A4.7 4.7 0 0 1 7.2 8c-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.3 11.3 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1a4.7 4.7 0 0 1 1.2 3.3c0 4.6-2.8 5.7-5.5 6 .4 .4.8 1.1.8 2.3v3.4c0 .4.2.7.8.6A12 12 0 0 0 12 .5Z"/></svg></a><span class="social-link social-link-placeholder" aria-label="X" title="X"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-4.9-7.4L5.6 22H2.5l7.3-8.4L1.2 2h6.5l4.4 6.8L18.9 2Zm-1.1 18h1.7L6.7 3.9H4.9L17.8 20Z"/></svg></span><a class="social-link" href="https://de.linkedin.com/in/favian-hatje-2892181a1" aria-label="LinkedIn" title="LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4.98 3.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5ZM3 9h4v12H3V9Zm7 0h3.8v1.7h.1c.5-1 1.8-2.1 3.8-2.1 4 0 4.8 2.6 4.8 6V21h-4v-5.5c0-1.3 0-3-1.9-3s-2.2 1.5-2.2 2.9V21h-4V9Z"/></svg></a></nav></footer>
+  <script src="/assets/site.js"></script>
+</body>
+</html>
