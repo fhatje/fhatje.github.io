@@ -399,6 +399,13 @@ h2 {
   text-align: center;
 }
 
+.footer-legal {
+  color: var(--line);
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
 .footer-legal a {
   color: var(--muted);
 }
@@ -434,6 +441,46 @@ h2 {
 .article-body p,
 .article-body ul {
   max-width: 76ch;
+}
+
+.page-intro.legal-intro h1 {
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.legal-text {
+  max-width: 76ch;
+  overflow-wrap: anywhere;
+}
+
+.legal-text h2 {
+  font-size: 1.25rem;
+  margin: 2.2em 0 0.7em;
+}
+
+.legal-text h3 {
+  font-size: 1rem;
+  margin: 1.6em 0 0.5em;
+}
+
+.legal-text p {
+  margin: 0 0 1em;
+}
+
+.legal-text ul {
+  margin: 0 0 1em;
+  padding-left: 1.3em;
+}
+
+.legal-text li {
+  margin-bottom: 0.5em;
+}
+
+.legal-text .seal {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-top: 2.5em;
 }
 
 .article-figure {
