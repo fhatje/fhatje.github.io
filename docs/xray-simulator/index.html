@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chest X-ray Simulator</title>
+    <script type="module" crossorigin src="./assets/index-DeHf9OSU.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-C4iqH5xY.css">
+  </head>
+  <body>
+    <div id="app">
+      <header class="topbar">
+        <div class="brand"><span class="logo">◐</span> <span class="brand-long">Chest X-ray Simulator</span><span class="brand-short">CXR Sim</span></div>
+        <div class="case"><select id="case-select" title="Patient"></select></div>
+        <button id="quiz-btn" class="quiz-btn">Quiz mode</button>
+        <button id="help-btn" title="Help">?</button>
+        <div class="disclaimer">For educational purposes · simulated images · <button class="link-btn" id="sources-btn">Sources</button> · <a href="https://favianhatje.com/impressum/" target="_blank" rel="noopener">Impressum</a> · <a href="https://favianhatje.com/datenschutz/" target="_blank" rel="noopener">Datenschutz</a></div>
+      </header>
+      <main class="layout">
+        <section class="panel view3d" id="view3d-panel">
+          <div class="panel-head">
+            <span class="title">3D setup</span>
+            <div class="toggles" id="layer-toggles"></div>
+            <div class="toggles" id="view-buttons"></div>
+            <button class="fs-btn" data-fs="view3d-panel" title="Fullscreen">⤢</button>
+          </div>
+          <div class="viewport" id="view3d">
+            <div class="edit-bar hidden" id="edit-bar"></div>
+            <div class="ct-inset hidden" id="ct-inset"><div class="ct-label" id="ct-label"></div></div>
+          </div>
+          <div class="hint" id="hint3d"></div>
+        </section>
+        <section class="panel radiograph" id="xray-panel">
+          <div class="panel-head">
+            <span class="title">Radiograph</span>
+            <div class="toggles" id="overlay-toggles"></div>
+            <button class="fs-btn" data-fs="xray-panel" title="Fullscreen">⤢</button>
+          </div>
+          <div class="xray-wrap" id="xray-wrap">
+            <div class="stage" id="xray-stage">
+              <canvas id="xray"></canvas>
+              <svg id="xray-overlay"></svg>
+            </div>
+            <div class="xray-label tl" id="label-tl"></div>
+            <div class="xray-label tr" id="label-tr"></div>
+            <div class="xray-label bl" id="label-bl"></div>
+            <div class="xray-label br" id="label-br"></div>
+            <div class="busy" id="busy"></div>
+            <div class="xray-help">wheel: zoom · drag: pan · right-drag: window/level · double-click: reset</div>
+          </div>
+          <div class="measure" id="measure"></div>
+        </section>
+        <aside class="panel controls" id="controls"></aside>
+      </main>
+      <div class="modal hidden" id="help">
+        <div class="modal-box">
+          <button class="close" id="help-close">✕</button>
+          <h2>How to use</h2>
+          <p><b>3D setup</b> — drag to orbit, scroll to zoom. The beam pyramid shows the divergent X-rays from the focal spot to the detector; the detector shows the current image.</p>
+          <p><b>Radiograph</b> — computed live by sending X-rays through a real CT scan. Mouse wheel zooms, drag pans, <b>right-drag</b> changes window (left/right) and level (up/down), double-click resets.</p>
+          <p><b>Projection & geometry</b> — switch between PA and lateral; under <i>Geometry & exposure</i> change the beam direction (PA/AP), the source-image distance, rotate or tilt the patient, angle the tube or collimate the field. Watch the magnification and CTR below the image.</p>
+          <p><b>Pathology</b> — add a nodule by clicking into a lung in 3D (then drag it to move it), or add consolidation, lobar atelectasis, pleural effusion and pneumothorax; <b>Lines & tubes</b> adds an endotracheal tube, nasogastric tube, central line or ECG leads. <b>Mark findings</b> (M), <b>Lobes</b> and <b>Heart</b> colour-code what projects where.</p>
+          <p><b>Quiz mode</b> — random cases: name the finding, click its location, then see the answer.</p>
+          <p class="small">Simulated images for education only, not for diagnosis. CT data: STOIC2021 (CC BY-NC 4.0). <button class="link-btn" id="sources-link">All sources and licences</button> · <a href="https://favianhatje.com/impressum/" target="_blank" rel="noopener">Impressum</a> · <a href="https://favianhatje.com/datenschutz/" target="_blank" rel="noopener">Datenschutz</a></p>
+        </div>
+      </div>
+      <div class="modal hidden" id="sources">
+        <div class="modal-box sources">
+          <button class="close" id="sources-close">✕</button>
+          <h2>Sources and licences</h2>
+          <p class="small">The radiographs are simulated from a real CT scan. All pathologies, lines and tubes are added by the simulator; they are not present in the original data.</p>
+
+          <h3>CT data</h3>
+          <ol class="refs">
+            <li>CT scan: case 2865 of STOIC2021 Training (chest CT of a patient examined for suspected COVID-19 pneumonia, France 2020; selected because it shows no lung pathology). Radboud University Medical Center. <a href="https://registry.opendata.aws/stoic2021-training" target="_blank" rel="noopener">registry.opendata.aws/stoic2021-training</a>, accessed 17 Oct 2026. Licence: <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a> (non-commercial use only).</li>
+            <li>Revel MP, Boussouar S, de Margerie-Mellon C, et al. Study of Thoracic CT in COVID-19: The STOIC Project. <i>Radiology</i> 2021;301(1):E361–E370. <a href="https://doi.org/10.1148/radiol.2021210384" target="_blank" rel="noopener">doi:10.1148/radiol.2021210384</a></li>
+          </ol>
+          <p class="small">Changes to the CT data: resampled and cropped to the chest, arms removed from the field, organ and lobe segmentation, derived surface meshes and landmarks.</p>
+
+          <h3>Segmentation</h3>
+          <ol class="refs" start="3">
+            <li>TotalSegmentator 2.18.0, tasks <i>total</i>, <i>body</i> and <i>lung_vessels</i> (<a href="https://github.com/wasserth/TotalSegmentator" target="_blank" rel="noopener">github.com/wasserth/TotalSegmentator</a>, Apache-2.0).</li>
+            <li>Wasserthal J, Breit HC, Meyer MT, et al. TotalSegmentator: Robust Segmentation of 104 Anatomic Structures in CT Images. <i>Radiol Artif Intell</i> 2023;5(5):e230024. <a href="https://doi.org/10.1148/ryai.230024" target="_blank" rel="noopener">doi:10.1148/ryai.230024</a></li>
+            <li>Isensee F, Jaeger PF, Kohl SAA, et al. nnU-Net: a self-configuring method for deep learning-based biomedical image segmentation. <i>Nat Methods</i> 2021;18(2):203–211. <a href="https://doi.org/10.1038/s41592-020-01008-z" target="_blank" rel="noopener">doi:10.1038/s41592-020-01008-z</a></li>
+            <li>Liu J, Zhang Z, Niu B, et al. A Custom Annotated Dataset for Segmentation of Pulmonary Veins, Arteries, and Airways. <i>Sci Data</i> 2025;12:1806. <a href="https://doi.org/10.1038/s41597-025-06074-6" target="_blank" rel="noopener">doi:10.1038/s41597-025-06074-6</a></li>
+            <li>Kirchhoff Y, Rokuss MR, Roy S, et al. Skeleton Recall Loss for Connectivity Conserving and Resource Efficient Segmentation of Thin Tubular Structures. 2024. <a href="https://arxiv.org/abs/2404.03010" target="_blank" rel="noopener">arXiv:2404.03010</a></li>
+          </ol>
+
+          <h3>X-ray physics</h3>
+          <ol class="refs" start="8">
+            <li>Hubbell JH, Seltzer SM. Tables of X-Ray Mass Attenuation Coefficients and Mass Energy-Absorption Coefficients (version 1.4). NIST Standard Reference Database 126, 2004 (originally NISTIR 5632). <a href="https://physics.nist.gov/PhysRefData/XrayMassCoef/" target="_blank" rel="noopener">physics.nist.gov/PhysRefData/XrayMassCoef</a>. Water, cortical bone (ICRU-44 composition), aluminium, copper.</li>
+            <li>ICRU Report 44: Tissue Substitutes in Radiation Dosimetry and Measurement. International Commission on Radiation Units and Measurements, 1989.</li>
+            <li>Kramers HA. On the theory of X-ray absorption and of the continuous X-ray spectrum. <i>Phil Mag</i> 1923;46(275):836–871. <a href="https://doi.org/10.1080/14786442308565244" target="_blank" rel="noopener">doi:10.1080/14786442308565244</a></li>
+          </ol>
+          <p class="small">The CsI detector attenuation and the tungsten characteristic-line intensities are approximations.</p>
+
+          <h3>Technique and clinical content</h3>
+          <ol class="refs" start="11">
+            <li>Bundesärztekammer. Leitlinie der Bundesärztekammer zur Qualitätssicherung in der Röntgendiagnostik – Qualitätskriterien röntgendiagnostischer Untersuchungen. Board resolution 15 Sep 2022, <i>Dtsch Arztebl</i> 2022.</li>
+            <li>Hansell DM, Bankier AA, MacMahon H, et al. Fleischner Society: Glossary of Terms for Thoracic Imaging. <i>Radiology</i> 2008;246(3):697–722. <a href="https://doi.org/10.1148/radiol.2462070712" target="_blank" rel="noopener">doi:10.1148/radiol.2462070712</a></li>
+            <li>Woodring JH, Reed JC. Types and Mechanisms of Pulmonary Atelectasis. <i>J Thorac Imaging</i> 1996;11(2):92–108. <a href="https://doi.org/10.1097/00005382-199621000-00002" target="_blank" rel="noopener">doi:10.1097/00005382-199621000-00002</a></li>
+            <li>Blackmore CC, Black WC, Dallas RV, et al. Pleural fluid volume estimation: a chest radiograph prediction rule. <i>Acad Radiol</i> 1996;3(2):103–109. <a href="https://doi.org/10.1016/S1076-6332(05)80373-3" target="_blank" rel="noopener">doi:10.1016/S1076-6332(05)80373-3</a></li>
+            <li>Godoy MCB, Leitman BS, de Groot PM, et al. Chest Radiography in the ICU: Part 1, Evaluation of Airway, Enteric, and Pleural Tubes. <i>AJR</i> 2012;198(3):563–571. <a href="https://doi.org/10.2214/AJR.10.7226" target="_blank" rel="noopener">doi:10.2214/AJR.10.7226</a></li>
+            <li>Godoy MCB, Leitman BS, de Groot PM, et al. Chest Radiography in the ICU: Part 2, Evaluation of Cardiovascular Lines and Other Devices. <i>AJR</i> 2012;198(3):572–581. <a href="https://doi.org/10.2214/AJR.11.8124" target="_blank" rel="noopener">doi:10.2214/AJR.11.8124</a></li>
+          </ol>
+
+          <h3>Software and fonts</h3>
+          <ol class="refs" start="18">
+            <li><a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> (MIT) for WebGL rendering; built with <a href="https://vite.dev" target="_blank" rel="noopener">Vite</a> (MIT).</li>
+            <li>Data preparation: NiBabel, NumPy, SciPy, scikit-image, trimesh, fast-simplification (open-source licences).</li>
+            <li>Fonts: Inter (Rasmus Andersson) and JetBrains Mono (JetBrains), both SIL Open Font License 1.1, bundled with the app via <a href="https://fontsource.org" target="_blank" rel="noopener">Fontsource</a>.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="loading" id="loading"><div class="spinner"></div><div id="loading-msg">Loading…</div></div>
+    </div>
+  </body>
+</html>
