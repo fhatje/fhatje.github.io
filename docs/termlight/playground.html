@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Security-Policy" content="default-src &#39;self&#39;; script-src &#39;self&#39;; style-src &#39;self&#39; &#39;unsafe-inline&#39;; img-src &#39;self&#39; data:; font-src &#39;self&#39; data:; worker-src &#39;self&#39;; connect-src &#39;self&#39;; object-src &#39;none&#39;; base-uri &#39;none&#39;; form-action &#39;none&#39;">
+    <meta name="referrer" content="no-referrer">
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>termlight – Full editor</title>
+    <meta name="description" content="A text field that recognises medical terms as you type and highlights them like a code editor highlights syntax. Technology demo, runs entirely in the browser, in English, German and French." />
+    <meta property="og:title" content="termlight – Full editor" />
+    <meta property="og:description" content="A text field that recognises medical terms as you type and highlights them like a code editor highlights syntax. Technology demo, runs entirely in the browser, in English, German and French." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://fhatje.github.io/termlight/playground.html" />
+    <meta property="og:image" content="https://fhatje.github.io/termlight/social.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <!-- Both in the head so the first frame is already styled: loaded from the module they flash. -->
+    <script src="theme.js"></script>
+    <style>.intro{flex-wrap:wrap;align-items:center;gap:.6rem 1.5rem;margin-bottom:1rem;display:flex}.intro .how{flex:22rem;margin:0}.examples{align-items:center;gap:.5rem;min-width:0;display:flex}.examples label{color:var(--muted);font-size:13px}.examples select{border:1px solid var(--line);border-radius:var(--radius);background:var(--page);min-width:0;color:var(--ink);font:inherit;flex:0 19rem;padding:6px 28px 6px 10px;font-size:13px}#stage med-editor{height:min(70vh,46rem)}.failure{border-radius:var(--radius);border:1px solid #b4233c;padding:12px}.log{color:var(--muted);font:12px/1.6 var(--mono);margin-top:1rem}.log ol{max-height:9rem;margin:.4rem 0 0;padding:0;list-style:none;overflow:auto}</style>
+    <script type="module" crossorigin src="./assets/playground-BcG3y1l5.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/site-CGdaxZib.js">
+    <link rel="stylesheet" crossorigin href="./assets/site-DrR-Ud2l.css">
+  </head>
+  <body>
+    <noscript><p>This interactive editor demo needs JavaScript. Please enable JavaScript to edit the invented example reports.</p></noscript>
+    <header class="top">
+      <div class="bar">
+        <a class="brand" href="./" data-t="brand"></a>
+        <nav class="tabs">
+          <a href="./" data-nav="report" data-t="navReport"></a>
+          <a href="playground.html" data-nav="editor" data-t="navEditor"></a>
+        </nav>
+        <div class="tools">
+          <div class="seg" role="group" data-t-label="language">
+            <button type="button" data-lang-choice="de">Deutsch</button>
+            <button type="button" data-lang-choice="en">English</button>
+            <button type="button" data-lang-choice="fr">Français</button>
+          </div>
+          <div class="seg" role="group" data-t-label="theme">
+            <button type="button" data-theme-choice="light" data-t="light"></button>
+            <button type="button" data-theme-choice="dark" data-t="dark"></button>
+            <button type="button" data-theme-choice="auto" data-t="auto"></button>
+          </div>
+        </div>
+      </div>
+    </header>
+    <div class="page">
+      <div class="intro">
+        <p class="how" data-t="how"></p>
+        <div class="examples">
+          <label for="example" data-t="examples"></label>
+          <select id="example"></select>
+          <button type="button" class="btn" id="clear" data-t="clear"></button>
+        </div>
+      </div>
+      <main id="stage"></main>
+      <details class="log" hidden>
+        <summary>Events (<span id="log-count">0</span>)</summary>
+        <ol id="log" aria-live="off"></ol>
+      </details>
+
+      <footer class="foot">
+        <p><strong data-t="noticeTitle"></strong> <span data-t="notice"></span></p>
+        <p data-t="privacy"></p>
+        <p><a href="https://github.com/fhatje/termlight" rel="noopener" data-t="source"></a> · <a href="THIRD_PARTY_NOTICES.txt" data-t="licences"></a></p>
+      </footer>
+    </div>
+  </body>
+</html>

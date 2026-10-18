@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Security-Policy" content="default-src &#39;self&#39;; script-src &#39;self&#39;; style-src &#39;self&#39; &#39;unsafe-inline&#39;; img-src &#39;self&#39; data:; font-src &#39;self&#39; data:; worker-src &#39;self&#39;; connect-src &#39;self&#39;; object-src &#39;none&#39;; base-uri &#39;none&#39;; form-action &#39;none&#39;">
+    <meta name="referrer" content="no-referrer">
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>termlight – Syntax highlighting for radiology reports</title>
+    <meta name="description" content="A text field that recognises medical terms as you type and highlights them like a code editor highlights syntax. Technology demo, runs entirely in the browser, in English, German and French." />
+    <meta property="og:title" content="termlight – Syntax highlighting for radiology reports" />
+    <meta property="og:description" content="A text field that recognises medical terms as you type and highlights them like a code editor highlights syntax. Technology demo, runs entirely in the browser, in English, German and French." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://fhatje.github.io/termlight/" />
+    <meta property="og:image" content="https://fhatje.github.io/termlight/social.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <!-- Both in the head so the first frame is already styled: loaded from the module they flash. -->
+    <script src="theme.js"></script>
+    <style>.cases{flex-wrap:wrap;gap:.4rem;margin:1.75rem 0 1rem;display:flex}.case{border-radius:var(--radius);color:var(--ink);font:inherit;cursor:pointer;background:0 0;border:0;align-items:baseline;gap:.45rem;padding:7px 12px;font-size:14px;display:flex}.case b{font-weight:500}.case span{color:var(--muted);font-size:13px}.case:hover{background:var(--page)}.case[aria-pressed=true]{background:var(--ink);color:var(--page)}.case[aria-pressed=true] span{color:inherit;opacity:.7}.work{grid-template-columns:minmax(0,1fr) 14rem;align-items:start;gap:2rem;display:grid}.sheet{border-radius:var(--radius);background:var(--page);padding:clamp(1rem,2.4vw,1.5rem)}.sheet-head{align-items:center;gap:1rem;min-height:2rem;display:flex}.sheet-head .btn{margin-left:auto}.sheet h2{letter-spacing:-.01em;margin:0;font-size:1.05rem;font-weight:600;line-height:1.3}.section{grid-template-columns:9.5rem minmax(0,1fr);gap:.3rem 1rem;margin-top:.9rem;display:grid}.section label{color:var(--ink);padding-top:.75rem;font-size:14px;font-weight:600}.sheet med-editor{--med-font-size:.9rem}.legend{padding-top:.4rem;font-size:13px;position:sticky;top:1rem}.legend h3{color:var(--muted);font:inherit;margin:0 0 .6rem}.legend ul{gap:.2rem;margin:0;padding:0;list-style:none;display:grid}.legend li{font:.86rem/1.6 var(--mono);justify-content:space-between;align-items:baseline;gap:.75rem;display:flex}.legend li[data-empty=true]{opacity:.4}.legend .n{color:var(--faint);font:12px var(--ui);font-variant-numeric:tabular-nums}.legend .assertions{margin-top:.9rem}.legend p{color:var(--muted);margin:.9rem 0 0;line-height:1.45}@media (width<=60rem){.work{grid-template-columns:minmax(0,1fr);gap:1.25rem}.legend{padding:0;position:static}.legend ul{grid-template-columns:repeat(auto-fill,minmax(9rem,1fr));gap:.1rem 1.25rem}}@media (width<=40rem){.section{grid-template-columns:minmax(0,1fr)}.section label{padding-top:0}}</style>
+    <script type="module" crossorigin src="./assets/index-CULACohV.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/site-CGdaxZib.js">
+    <link rel="modulepreload" crossorigin href="./assets/packs-DMEDDJZc.js">
+    <link rel="stylesheet" crossorigin href="./assets/site-DrR-Ud2l.css">
+  </head>
+  <body>
+    <noscript><p>This interactive editor demo needs JavaScript. Please enable JavaScript to edit the invented example reports.</p></noscript>
+    <header class="top">
+      <div class="bar">
+        <a class="brand" href="./" data-t="brand"></a>
+        <nav class="tabs">
+          <a href="./" data-nav="report" data-t="navReport"></a>
+          <a href="playground.html" data-nav="editor" data-t="navEditor"></a>
+        </nav>
+        <div class="tools">
+          <div class="seg" role="group" data-t-label="language">
+            <button type="button" data-lang-choice="de">Deutsch</button>
+            <button type="button" data-lang-choice="en">English</button>
+            <button type="button" data-lang-choice="fr">Français</button>
+          </div>
+          <div class="seg" role="group" data-t-label="theme">
+            <button type="button" data-theme-choice="light" data-t="light"></button>
+            <button type="button" data-theme-choice="dark" data-t="dark"></button>
+            <button type="button" data-theme-choice="auto" data-t="auto"></button>
+          </div>
+        </div>
+      </div>
+    </header>
+    <div class="page">
+      <h1 class="lede" data-t="lede"></h1>
+      <p class="how" data-t="how"></p>
+
+      <div class="cases" id="cases" role="group" data-t-label="cases"></div>
+
+      <main class="work">
+        <article class="sheet">
+          <div class="sheet-head">
+            <h2 id="exam"></h2>
+            <button type="button" class="btn" id="clear" data-t="clear"></button>
+          </div>
+          <div class="section">
+            <label id="label-clinical"></label>
+            <med-editor compact id="clinical"></med-editor>
+          </div>
+          <div class="section">
+            <label id="label-technique"></label>
+            <med-editor compact id="technique"></med-editor>
+          </div>
+          <div class="section">
+            <label id="label-findings"></label>
+            <med-editor compact id="findings"></med-editor>
+          </div>
+          <div class="section">
+            <label id="label-impression"></label>
+            <med-editor compact id="impression"></med-editor>
+          </div>
+        </article>
+        <aside class="legend" id="legend"></aside>
+      </main>
+
+      <footer class="foot">
+        <p><strong data-t="noticeTitle"></strong> <span data-t="notice"></span></p>
+        <p data-t="privacy"></p>
+        <p><a href="https://github.com/fhatje/termlight" rel="noopener" data-t="source"></a> · <a href="THIRD_PARTY_NOTICES.txt" data-t="licences"></a></p>
+      </footer>
+    </div>
+  </body>
+</html>
