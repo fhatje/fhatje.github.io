@@ -5,8 +5,8 @@
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chest X-ray Simulator</title>
-    <script type="module" crossorigin src="./assets/index-DdhgGut9.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-Bk1TlQvF.css">
+    <script type="module" crossorigin src="./assets/index-89M_JZRn.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-2sWk8jbX.css">
   </head>
   <body>
     <div id="app">
@@ -48,6 +48,7 @@
             <div class="xray-label bl" id="label-bl"></div>
             <div class="xray-label br" id="label-br"></div>
             <div class="busy" id="busy"></div>
+            <div class="ct-loading" id="ct-loading"></div>
             <div class="xray-help">wheel: zoom · drag: pan · right-drag: window/level · double-click: reset</div>
           </div>
           <div class="measure" id="measure"></div>
@@ -77,7 +78,7 @@
             <li>CT scan: case 2865 of STOIC2021 Training (chest CT of a patient examined for suspected COVID-19 pneumonia, France 2020; selected because it shows no lung pathology). Radboud University Medical Center. <a href="https://registry.opendata.aws/stoic2021-training" target="_blank" rel="noopener">registry.opendata.aws/stoic2021-training</a>, accessed 17 Oct 2026. Licence: <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a> (non-commercial use only).</li>
             <li>Revel MP, Boussouar S, de Margerie-Mellon C, et al. Study of Thoracic CT in COVID-19: The STOIC Project. <i>Radiology</i> 2021;301(1):E361–E370. <a href="https://doi.org/10.1148/radiol.2021210384" target="_blank" rel="noopener">doi:10.1148/radiol.2021210384</a></li>
           </ol>
-          <p class="small">Changes to the CT data: resampled and cropped to the chest, arms removed from the field, organ and lobe segmentation, derived surface meshes and landmarks.</p>
+          <p class="small">Changes to the CT data: resampled and cropped to the chest, CT numbers rounded to multiples of 4 HU, arms removed from the field, organ and lobe segmentation, derived surface meshes and landmarks.</p>
 
           <h3>Segmentation</h3>
           <ol class="refs" start="3">
